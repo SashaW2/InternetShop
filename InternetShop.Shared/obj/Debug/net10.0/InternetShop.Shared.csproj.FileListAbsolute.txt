@@ -1,0 +1,24 @@
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\bin\Debug\net10.0\InternetShop.Shared.deps.json
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\bin\Debug\net10.0\InternetShop.Shared.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\bin\Debug\net10.0\InternetShop.Shared.pdb
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.csproj.AssemblyReference.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.GeneratedMSBuildEditorConfig.editorconfig
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.AssemblyInfoInputs.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.AssemblyInfo.cs
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.csproj.CoreCompileInputs.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\obj\Debug\net10.0\refint\InternetShop.Shared.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.pdb
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Shared\obj\Debug\net10.0\ref\InternetShop.Shared.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\bin\Debug\net10.0\InternetShop.Shared.deps.json
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\bin\Debug\net10.0\InternetShop.Shared.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\bin\Debug\net10.0\InternetShop.Shared.pdb
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.csproj.AssemblyReference.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.GeneratedMSBuildEditorConfig.editorconfig
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.AssemblyInfoInputs.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.AssemblyInfo.cs
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.csproj.CoreCompileInputs.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\refint\InternetShop.Shared.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.pdb
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\ref\InternetShop.Shared.dll

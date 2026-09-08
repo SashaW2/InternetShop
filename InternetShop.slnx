@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="InternetShop.Client/InternetShop.Client.csproj" />
+  <Project Path="InternetShop.Server/InternetShop.Server.csproj" />
+  <Project Path="InternetShop.Shared/InternetShop.Shared.csproj" />
+  <Project Path="InternetShop.Tests/InternetShop.Tests.csproj" Id="b0cbdaec-89e2-4e83-82e6-3e4da7158e7d" />
+</Solution>

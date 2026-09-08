@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "G2MzVWE1TE4=",
+  "success": true,
+  "projectFilePath": "E:\\Университет\\4 курс\\1 семестр\\Распределенные и облачные технологии\\Лабораторные работы\\InternetShop\\InternetShop.Client\\InternetShop.Client.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Sasha\\.nuget\\packages\\newtonsoft.json\\13.0.4\\newtonsoft.json.13.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}

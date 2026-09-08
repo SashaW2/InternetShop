@@ -1,0 +1,38 @@
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Server.exe
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Server.deps.json
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Server.runtimeconfig.json
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Server.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Server.pdb
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\bin\Debug\net10.0\Newtonsoft.Json.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Shared.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Shared.pdb
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.csproj.AssemblyReference.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.GeneratedMSBuildEditorConfig.editorconfig
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.AssemblyInfoInputs.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.AssemblyInfo.cs
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.csproj.CoreCompileInputs.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\Internet.9EE64E7A.Up2Date
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\refint\InternetShop.Server.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.pdb
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.genruntimeconfig.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\InternetShop\InternetShop.Server\obj\Debug\net10.0\ref\InternetShop.Server.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Server.exe
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Server.deps.json
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Server.runtimeconfig.json
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Server.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Server.pdb
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\bin\Debug\net10.0\Newtonsoft.Json.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Shared.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\bin\Debug\net10.0\InternetShop.Shared.pdb
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.csproj.AssemblyReference.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.GeneratedMSBuildEditorConfig.editorconfig
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.AssemblyInfoInputs.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.AssemblyInfo.cs
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.csproj.CoreCompileInputs.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\Internet.9EE64E7A.Up2Date
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\refint\InternetShop.Server.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.pdb
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.genruntimeconfig.cache
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\ref\InternetShop.Server.dll
