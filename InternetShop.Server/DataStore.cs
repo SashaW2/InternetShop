@@ -57,7 +57,7 @@ namespace InternetShop.Server
                     Name = "Ноутбук ASUS",
                     Description = "15.6\", Intel Core i5, 8GB RAM",
                     Price = 1899.99m,
-                    Stock = 10,
+                    Stock = 1,
                     Category = "Электроника"
                 },
                 new Product {

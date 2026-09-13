@@ -36,3 +36,4 @@ E:\Университет\4 курс\1 семестр\Распределенны
 E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.pdb
 E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.genruntimeconfig.cache
 E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\ref\InternetShop.Server.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Server\obj\Debug\net10.0\InternetShop.Server.sourcelink.json

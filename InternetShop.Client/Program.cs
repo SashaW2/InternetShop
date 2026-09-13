@@ -105,8 +105,14 @@ namespace InternetShop.Client
 
             try
             {
+                Console.WriteLine($"\n[{DateTime.Now:HH:mm:ss.fff}] Запрос списка товаров...");
+                var startTime = DateTime.Now;
+
                 var request = RequestBuilder.BuildGetProducts();
                 var response = _client.SendRequest(request);
+
+                var endTime = DateTime.Now;
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Ответ получен. Время обработки: {(endTime - startTime).TotalSeconds:F2} сек");
                 DisplayResponse(response);
             }
             catch (Exception ex)
@@ -174,9 +180,16 @@ namespace InternetShop.Client
                     return;
                 }
 
-                Console.WriteLine($"\nВсего товаров в заказе: {items.Count}");
+                Console.WriteLine($"\n[{DateTime.Now:HH:mm:ss.fff}] Всего товаров в заказе: {items.Count}");
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Отправка запроса на создание заказа...");
+
                 var request = RequestBuilder.BuildCreateOrder(customerId, items, address);
+
+                var startTime = DateTime.Now;
                 var response = _client.SendRequest(request);
+                var endTime = DateTime.Now;
+
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Ответ получен. Время обработки: {(endTime - startTime).TotalSeconds:F2} сек");
                 DisplayResponse(response);
             }
             catch (FormatException)
@@ -200,8 +213,15 @@ namespace InternetShop.Client
                 Console.Write("Введите ID заказа: ");
                 int orderId = int.Parse(Console.ReadLine());
 
+                Console.WriteLine($"\n[{DateTime.Now:HH:mm:ss.fff}] Отправка запроса на отмену заказа №{orderId}...");
+
                 var request = RequestBuilder.BuildCancelOrder(orderId);
+
+                var startTime = DateTime.Now;
                 var response = _client.SendRequest(request);
+                var endTime = DateTime.Now;
+
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Ответ получен. Время обработки: {(endTime - startTime).TotalSeconds:F2} сек");
                 DisplayResponse(response);
             }
             catch (FormatException)
@@ -233,8 +253,15 @@ namespace InternetShop.Client
                     paymentMethod = "Банковская карта";
                 }
 
+                Console.WriteLine($"\n[{DateTime.Now:HH:mm:ss.fff}] Отправка запроса на оплату заказа №{orderId}...");
+
                 var request = RequestBuilder.BuildPayOrder(orderId, paymentMethod);
+
+                var startTime = DateTime.Now;
                 var response = _client.SendRequest(request);
+                var endTime = DateTime.Now;
+
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Ответ получен. Время обработки: {(endTime - startTime).TotalSeconds:F2} сек");
                 DisplayResponse(response);
             }
             catch (FormatException)

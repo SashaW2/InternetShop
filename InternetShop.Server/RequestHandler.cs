@@ -9,7 +9,7 @@ namespace InternetShop.Server
     {
         private BusinessLogic _logic = new BusinessLogic();
 
-        public Response ProcessRequest(string requestJson)
+        public Response ProcessRequest(string requestJson, int clientId = 0)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace InternetShop.Server
                         return _logic.GetProducts();
 
                     case OperationType.CreateOrder:
-                        return _logic.CreateOrder(request.Data);
+                        return _logic.CreateOrder(request.Data, clientId);
 
                     case OperationType.CancelOrder:
                         return _logic.CancelOrder(request.Data);

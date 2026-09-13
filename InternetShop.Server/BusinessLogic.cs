@@ -33,7 +33,7 @@ namespace InternetShop.Server
             }
         }
 
-        public Response CreateOrder(object data)
+        public Response CreateOrder(object data, int clientId = 0)
         {
             try
             {
@@ -104,12 +104,19 @@ namespace InternetShop.Server
                         };
                     }
 
-                    if (product.Stock < item.Quantity)
+                    int currentStock = product.Stock;
+
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [RACE] Client {clientId}: " +
+                        $"Проверка товара '{product.Name}': доступно = {currentStock}, запрошено = {item.Quantity}");
+
+                    System.Threading.Thread.Sleep(3000);
+
+                    if (currentStock < item.Quantity)
                     {
                         return new Response
                         {
                             Success = false,
-                            Error = $"Недостаточно товара '{product.Name}' на складе. В наличии: {product.Stock}, запрошено: {item.Quantity}",
+                            Error = $"Недостаточно товара '{product.Name}' на складе. В наличии: {currentStock}, запрошено: {item.Quantity}",
                             Operation = OperationType.CreateOrder.ToString()
                         };
                     }
@@ -134,7 +141,14 @@ namespace InternetShop.Server
                 foreach (var item in order.Items)
                 {
                     var product = DataStore.Products.First(p => p.Id == item.ProductId);
+
+                    System.Threading.Thread.Sleep(1000);
+
+                    int oldStock = product.Stock;
                     product.Stock -= item.Quantity;
+
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [RACE] Client {clientId}: " +
+                        $"Товар '{product.Name}': остаток изменён с {oldStock} на {product.Stock}");
                 }
 
                 LogEvent("OrderCreated", $"Заказ №{newOrder.Id} создан клиентом {customer.FirstName} {customer.LastName} на сумму {newOrder.TotalPrice} BYN");
@@ -164,6 +178,7 @@ namespace InternetShop.Server
                 };
             }
         }
+
         public Response CancelOrder(object data)
         {
             try

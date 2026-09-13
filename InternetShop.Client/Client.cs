@@ -11,6 +11,7 @@ namespace InternetShop.Client
         private TcpClient _tcpClient;
         private NetworkStream _stream;
         private bool _isConnected = false;
+        public string ClientId { get; set; } = Guid.NewGuid().ToString().Substring(0, 8);
 
         public void Connect(string ip, int port)
         {

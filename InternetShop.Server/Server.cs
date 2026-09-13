@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using InternetShop.Shared.DTO;
 
@@ -14,8 +14,10 @@ namespace InternetShop.Server
         private RequestHandler _handler = new RequestHandler();
         private bool _isRunning = true;
         private readonly int _port;
+        private int _clientCounter = 0;
+        private readonly object _counterLock = new object();
 
-        public Server(int port = 8888)
+        public Server(int port = 3000)
         {
             _port = port;
         }
@@ -38,10 +40,16 @@ namespace InternetShop.Server
                     try
                     {
                         var client = _listener.AcceptTcpClient();
-                        Console.WriteLine($"Клиент подключился: {client.Client.RemoteEndPoint}");
 
-                        var thread = new Thread(() => HandleClient(client));
-                        thread.Start();
+                        int clientId;
+                        lock (_counterLock)
+                        {
+                            clientId = ++_clientCounter;
+                        }
+
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ПОДКЛЮЧЕН ({client.Client.RemoteEndPoint})");
+
+                        _ = Task.Run(() => HandleClientAsync(client, clientId));
                     }
                     catch (SocketException ex)
                     {
@@ -61,8 +69,13 @@ namespace InternetShop.Server
             }
         }
 
-        private void HandleClient(TcpClient client)
+        private async Task HandleClientAsync(TcpClient client, int clientId)
         {
+            string clientEndPoint = client.Client.RemoteEndPoint?.ToString() ?? "unknown";
+
+            int? taskIdAtStart = Task.CurrentId;
+            int threadIdAtStart = System.Threading.Thread.CurrentThread.ManagedThreadId;
+
             try
             {
                 using (client)
@@ -73,26 +86,33 @@ namespace InternetShop.Server
                         try
                         {
                             var buffer = new byte[8192];
-                            int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                            int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
 
                             if (bytesRead == 0)
                             {
-                                Console.WriteLine("Клиент закрыл соединение");
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ОТКЛЮЧЕН (соединение закрыто)");
                                 break;
                             }
 
                             var requestJson = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                            Console.WriteLine($"Получен запрос: {requestJson}");
+                            var request = JsonConvert.DeserializeObject<Request>(requestJson);
+
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → START | " +
+                                $"Операция: {request?.Operation} | " +
+                                $"Task ID: {taskIdAtStart} | " +
+                                $"Поток: {threadIdAtStart}");
 
                             Response response = null;
 
                             try
                             {
-                                response = _handler.ProcessRequest(requestJson);
+                                await Task.Delay(10000);
+
+                                response = _handler.ProcessRequest(requestJson, clientId);
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"Ошибка обработки запроса: {ex.Message}");
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ОШИБКА: {ex.Message}");
                                 response = new Response
                                 {
                                     Success = false,
@@ -114,23 +134,27 @@ namespace InternetShop.Server
                             var responseJson = JsonConvert.SerializeObject(response);
                             var responseBytes = Encoding.UTF8.GetBytes(responseJson);
 
-                            stream.Write(responseBytes, 0, responseBytes.Length);
-                            Console.WriteLine($"Отправлен ответ: {responseJson}");
+                            await stream.WriteAsync(responseBytes, 0, responseBytes.Length);
+
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → END | " +
+                                $"Операция: {request?.Operation} | Успех: {response.Success} | " +
+                                $"Task ID: {taskIdAtStart} | " +
+                                $"Поток: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
                             Console.WriteLine("----------------------------------------");
                         }
                         catch (IOException ex)
                         {
-                            Console.WriteLine($"Ошибка ввода-вывода: {ex.Message}");
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ОШИБКА ВВОДА-ВЫВОДА: {ex.Message}");
                             break;
                         }
                         catch (SocketException ex)
                         {
-                            Console.WriteLine($"Ошибка сокета: {ex.Message}");
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ОШИБКА СОКЕТА: {ex.Message}");
                             break;
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Ошибка обработки: {ex.Message}");
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ОШИБКА ОБРАБОТКИ: {ex.Message}");
                             break;
                         }
                     }
@@ -138,7 +162,7 @@ namespace InternetShop.Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка обработки клиента: {ex.Message}");
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → КРИТИЧЕСКАЯ ОШИБКА: {ex.Message}");
             }
         }
 
@@ -149,7 +173,7 @@ namespace InternetShop.Server
                 var host = Dns.GetHostEntry(Dns.GetHostName());
                 foreach (var ip in host.AddressList)
                 {
-                    if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    if (ip.AddressFamily == AddressFamily.InterNetwork)
                         return ip.ToString();
                 }
                 return "127.0.0.1";

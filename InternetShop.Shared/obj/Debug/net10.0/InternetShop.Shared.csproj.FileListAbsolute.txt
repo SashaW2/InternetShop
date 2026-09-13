@@ -22,3 +22,4 @@ E:\Университет\4 курс\1 семестр\Распределенны
 E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\refint\InternetShop.Shared.dll
 E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.pdb
 E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\ref\InternetShop.Shared.dll
+E:\Университет\4 курс\1 семестр\Распределенные и облачные технологии\Лабораторные работы\InternetShop\InternetShop.Shared\obj\Debug\net10.0\InternetShop.Shared.sourcelink.json
