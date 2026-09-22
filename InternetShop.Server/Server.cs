@@ -1,10 +1,11 @@
-﻿using System;
+﻿using InternetShop.Shared.DTO;
+using InternetShop.Shared.Enums;
+using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using InternetShop.Shared.DTO;
 
 namespace InternetShop.Server
 {

@@ -39,6 +39,9 @@ namespace InternetShop.Server
                     case OperationType.PayOrder:
                         return _logic.PayOrder(request.Data);
 
+                    case OperationType.GetServerTime:
+                        return _logic.GetServerTime();
+
                     default:
                         return new Response
                         {

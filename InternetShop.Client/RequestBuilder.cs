@@ -57,5 +57,14 @@ namespace InternetShop.Client
                 Data = paymentData
             };
         }
+
+        public static Request BuildGetServerTime()
+        {
+            return new Request
+            {
+                Operation = OperationType.GetServerTime,
+                Data = null
+            };
+        }
     }
 }

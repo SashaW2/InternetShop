@@ -9,6 +9,7 @@ namespace InternetShop.Shared.Enums
         GetProducts = 1,
         CreateOrder = 2,
         CancelOrder = 3,
-        PayOrder = 4
+        PayOrder = 4,
+        GetServerTime = 5
     }
 }

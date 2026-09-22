@@ -12,6 +12,18 @@ namespace InternetShop.Client
         private NetworkStream _stream;
         private bool _isConnected = false;
         public string ClientId { get; set; } = Guid.NewGuid().ToString().Substring(0, 8);
+        public TimeSpan ClockOffset { get; set; } = TimeSpan.Zero;
+        public TimeSpan CalculatedOffset { get; set; } = TimeSpan.Zero;
+
+        public DateTime GetLocalTime()
+        {
+            return DateTime.UtcNow + ClockOffset;
+        }
+
+        public DateTime GetCorrectedTime()
+        {
+            return GetLocalTime() + CalculatedOffset;
+        }
 
         public void Connect(string ip, int port)
         {

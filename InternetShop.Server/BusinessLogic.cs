@@ -387,6 +387,45 @@ namespace InternetShop.Server
             }
         }
 
+        public Response GetServerTime()
+        {
+            try
+            {
+                DateTime serverTime = DateTime.UtcNow;
+
+                int artificialDelayMs = 0;
+
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] SERVER TIME → зафиксировано {serverTime:HH:mm:ss.fff} (UTC), задержка ответа {artificialDelayMs} мс");
+
+                System.Threading.Thread.Sleep(artificialDelayMs);
+
+                var timeResponse = new TimeResponse
+                {
+                    ServerTimeUtc = serverTime,
+                    ArtificialDelayMs = artificialDelayMs
+                };
+
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] SERVER TIME → отправка ответа (задержка {artificialDelayMs} мс прошла)");
+
+                return new Response
+                {
+                    Success = true,
+                    Message = $"Время сервера: {serverTime:HH:mm:ss.fff} UTC",
+                    Result = timeResponse,
+                    Operation = OperationType.GetServerTime.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response
+                {
+                    Success = false,
+                    Error = $"Ошибка при получении времени сервера: {ex.Message}",
+                    Operation = OperationType.GetServerTime.ToString()
+                };
+            }
+        }
+
         private void LogEvent(string eventName, string description)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;

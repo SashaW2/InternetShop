@@ -10,6 +10,7 @@ namespace InternetShop.Client
     {
         private static Client _client;
         private static bool _isConnected = false;
+        private static int _clientClockOffsetSeconds = 0;
 
         static void Main(string[] args)
         {
@@ -17,6 +18,12 @@ namespace InternetShop.Client
             Console.WriteLine("========================================");
             Console.WriteLine("   КЛИЕНТ ИНТЕРНЕТ-МАГАЗИНА");
             Console.WriteLine("========================================");
+
+            Console.Write("Введите смещение часов клиента в секундах (например, 7 или -5): ");
+            if (int.TryParse(Console.ReadLine(), out int offsetSeconds))
+            {
+                _clientClockOffsetSeconds = offsetSeconds;
+            }
 
             ConnectToServer();
 
@@ -30,7 +37,9 @@ namespace InternetShop.Client
                 Console.WriteLine("2. Создать заказ");
                 Console.WriteLine("3. Отменить заказ");
                 Console.WriteLine("4. Оплатить заказ");
-                Console.WriteLine("5. Выход");
+                Console.WriteLine("5. Синхронизировать время с сервером");
+                Console.WriteLine("6. Показать локальное время клиента");
+                Console.WriteLine("7. Выход");
                 Console.WriteLine("========================================");
                 Console.Write("Выберите действие: ");
 
@@ -51,6 +60,12 @@ namespace InternetShop.Client
                         HandlePayOrder();
                         break;
                     case "5":
+                        HandleTimeSync();
+                        break;
+                    case "6":
+                        ShowLocalTime();
+                        break;
+                    case "7":
                         _client.Close();
                         Console.WriteLine("До свидания!");
                         return;
@@ -69,6 +84,8 @@ namespace InternetShop.Client
             try
             {
                 _client = new Client();
+                _client.ClockOffset = TimeSpan.FromSeconds(_clientClockOffsetSeconds);
+                Console.WriteLine($"Смещение часов клиента: {_client.ClockOffset.TotalSeconds:+0;-0;0} сек");
                 _client.Connect("127.0.0.1", 3000);
                 _isConnected = true;
                 Console.WriteLine("Подключение к серверу установлено!");
@@ -273,6 +290,90 @@ namespace InternetShop.Client
                 Console.WriteLine($"Ошибка: {ex.Message}");
                 _isConnected = false;
             }
+        }
+
+        private static void HandleTimeSync()
+        {
+            CheckConnection();
+            if (!_isConnected) return;
+
+            try
+            {
+                Console.WriteLine("\n========== СИНХРОНИЗАЦИЯ ВРЕМЕНИ ==========");
+
+                // 1. Локальное время клиента ДО синхронизации
+                DateTime localBefore = _client.GetLocalTime();
+                Console.WriteLine($"Локальное время клиента (до синхр.): {localBefore:HH:mm:ss.fff}");
+
+                // 2. Запрос времени у сервера
+                Console.WriteLine($"\n[{DateTime.Now:HH:mm:ss.fff}] Отправка TIME_REQUEST...");
+
+                DateTime requestTime = DateTime.UtcNow;
+                var request = RequestBuilder.BuildGetServerTime();
+                var response = _client.SendRequest(request);
+                DateTime responseTime = DateTime.UtcNow;
+
+                if (!response.Success)
+                {
+                    Console.WriteLine($"Ошибка сервера: {response.Error}");
+                    return;
+                }
+
+                // 3. Разбор ответа
+                var timeData = Newtonsoft.Json.JsonConvert.DeserializeObject<InternetShop.Shared.DTO.TimeResponse>(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(response.Result));
+
+                if (timeData == null || timeData.ServerTimeUtc == default)
+                {
+                    Console.WriteLine("Ошибка: сервер вернул некорректные данные времени");
+                    return;
+                }
+
+                DateTime serverTime = timeData.ServerTimeUtc;
+
+                // 4. RTT и оценка задержки
+                TimeSpan rtt = responseTime - requestTime;
+                TimeSpan networkDelay = TimeSpan.FromMilliseconds(rtt.TotalMilliseconds / 2.0);
+
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] TIME_RESPONSE получен");
+                Console.WriteLine($"Server Time (UTC):       {serverTime:HH:mm:ss.fff}");
+                Console.WriteLine($"Client Local Time:       {localBefore:HH:mm:ss.fff}");
+                Console.WriteLine($"Request Time (UTC):      {requestTime:HH:mm:ss.fff}");
+                Console.WriteLine($"Response Time (UTC):     {responseTime:HH:mm:ss.fff}");
+                Console.WriteLine($"RTT:                     {rtt.TotalMilliseconds:F0} мс");
+                Console.WriteLine($"Network delay (RTT/2):   {networkDelay.TotalMilliseconds:F0} мс");
+                Console.WriteLine($"Искусственная задержка:  {timeData.ArtificialDelayMs} мс");
+
+                // 5. Расчет поправки
+                //    Оценка времени сервера в момент приёма ответа = serverTime + RTT/2
+                //    Offset = (serverTime + RTT/2) - localTime(в момент приёма)
+                DateTime estimatedServerNow = serverTime + networkDelay;
+                DateTime localNow = _client.GetLocalTime();
+
+                TimeSpan offset = estimatedServerNow - localNow;
+                _client.CalculatedOffset = offset;
+
+                // 6. Вывод результата
+                Console.WriteLine($"\nВычисленная поправка:    {offset.TotalMilliseconds:F0} мс ({offset.TotalSeconds:F2} сек)");
+                Console.WriteLine($"Разница до синхронизации: {(serverTime - localBefore).TotalSeconds:F2} сек");
+
+                DateTime corrected = _client.GetCorrectedTime();
+                Console.WriteLine($"Скорректированное время клиента: {corrected:HH:mm:ss.fff}");
+                Console.WriteLine($"Разница после синхронизации:    {(serverTime + networkDelay - corrected).TotalMilliseconds:F0} мс");
+
+                Console.WriteLine("===========================================");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка синхронизации времени: {ex.Message}");
+            }
+        }
+
+        private static void ShowLocalTime()
+        {
+            Console.WriteLine($"\nЛокальное время клиента (с учётом смещения): {_client.GetLocalTime():HH:mm:ss.fff}");
+            Console.WriteLine($"Скорректированное время: {_client.GetCorrectedTime():HH:mm:ss.fff}");
+            Console.WriteLine($"Текущая поправка: {_client.CalculatedOffset.TotalSeconds:F2} сек");
         }
 
         private static void DisplayResponse(Response response)
