@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 using InternetShop.Shared.Models;
 using InternetShop.Shared.Enums;
 using InternetShop.Shared.DTO;
@@ -9,6 +10,8 @@ namespace InternetShop.Server
 {
     public class BusinessLogic
     {
+        private static readonly object _stockLock = new object();
+
         public Response GetProducts()
         {
             try
@@ -90,83 +93,86 @@ namespace InternetShop.Server
                     };
                 }
 
-                int itemId = 1;
-                foreach (var item in order.Items)
+                lock (_stockLock)
                 {
-                    var product = DataStore.Products.FirstOrDefault(p => p.Id == item.ProductId);
-                    if (product == null)
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → LOCK");
+
+                    int itemId = 1;
+                    foreach (var item in order.Items)
                     {
-                        return new Response
+                        var product = DataStore.Products.FirstOrDefault(p => p.Id == item.ProductId);
+                        if (product == null)
                         {
-                            Success = false,
-                            Error = $"Товар с ID {item.ProductId} не найден",
-                            Operation = OperationType.CreateOrder.ToString()
-                        };
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK (товар не найден)");
+                            return new Response
+                            {
+                                Success = false,
+                                Error = $"Товар с ID {item.ProductId} не найден",
+                                Operation = OperationType.CreateOrder.ToString()
+                            };
+                        }
+
+                        int currentStock = product.Stock;
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Available = {currentStock} (товар '{product.Name}')");
+
+                        Thread.Sleep(5000);
+
+                        if (currentStock < item.Quantity)
+                        {
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → FAIL (недостаточно товара)");
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+                            return new Response
+                            {
+                                Success = false,
+                                Error = $"Недостаточно товара '{product.Name}' на складе. В наличии: {currentStock}, запрошено: {item.Quantity}",
+                                Operation = OperationType.CreateOrder.ToString()
+                            };
+                        }
+
+                        item.Id = itemId++;
+                        item.Price = product.Price;
                     }
 
-                    int currentStock = product.Stock;
-
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [RACE] Client {clientId}: " +
-                        $"Проверка товара '{product.Name}': доступно = {currentStock}, запрошено = {item.Quantity}");
-
-                    System.Threading.Thread.Sleep(3000);
-
-                    if (currentStock < item.Quantity)
+                    var newOrder = new Order
                     {
-                        return new Response
-                        {
-                            Success = false,
-                            Error = $"Недостаточно товара '{product.Name}' на складе. В наличии: {currentStock}, запрошено: {item.Quantity}",
-                            Operation = OperationType.CreateOrder.ToString()
-                        };
+                        Id = DataStore.GetNextOrderId(),
+                        CustomerId = order.CustomerId,
+                        Items = order.Items,
+                        CreatedAt = DateTime.Now,
+                        Status = OrderStatus.Pending,
+                        TotalPrice = order.Items.Sum(i => i.Price * i.Quantity),
+                        ShippingAddress = order.ShippingAddress
+                    };
+
+                    DataStore.Orders.Add(newOrder);
+
+                    foreach (var item in order.Items)
+                    {
+                        var product = DataStore.Products.First(p => p.Id == item.ProductId);
+                        int oldStock = product.Stock;
+                        product.Stock -= item.Quantity;
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → SUCCESS (товар '{product.Name}': {oldStock} → {product.Stock})");
                     }
 
-                    item.Id = itemId++;
-                    item.Price = product.Price;
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+
+                    LogEvent("OrderCreated", $"Заказ №{newOrder.Id} создан клиентом {customer.FirstName} {customer.LastName} на сумму {newOrder.TotalPrice} BYN");
+                    LogEvent("OrderCreated", $"  Адрес доставки: {newOrder.ShippingAddress}");
+
+                    foreach (var item in order.Items)
+                    {
+                        var product = DataStore.Products.First(p => p.Id == item.ProductId);
+                        LogEvent("StockUpdated", $"Товар '{product.Name}'. Остаток: {product.Stock}");
+                    }
+
+                    return new Response
+                    {
+                        Success = true,
+                        Message = $"Заказ №{newOrder.Id} успешно создан на сумму {newOrder.TotalPrice} BYN",
+                        Result = newOrder,
+                        Operation = OperationType.CreateOrder.ToString()
+                    };
                 }
-
-                var newOrder = new Order
-                {
-                    Id = DataStore.GetNextOrderId(),
-                    CustomerId = order.CustomerId,
-                    Items = order.Items,
-                    CreatedAt = DateTime.Now,
-                    Status = OrderStatus.Pending,
-                    TotalPrice = order.Items.Sum(i => i.Price * i.Quantity),
-                    ShippingAddress = order.ShippingAddress
-                };
-
-                DataStore.Orders.Add(newOrder);
-
-                foreach (var item in order.Items)
-                {
-                    var product = DataStore.Products.First(p => p.Id == item.ProductId);
-
-                    System.Threading.Thread.Sleep(1000);
-
-                    int oldStock = product.Stock;
-                    product.Stock -= item.Quantity;
-
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] [RACE] Client {clientId}: " +
-                        $"Товар '{product.Name}': остаток изменён с {oldStock} на {product.Stock}");
-                }
-
-                LogEvent("OrderCreated", $"Заказ №{newOrder.Id} создан клиентом {customer.FirstName} {customer.LastName} на сумму {newOrder.TotalPrice} BYN");
-                LogEvent("OrderCreated", $"  Адрес доставки: {newOrder.ShippingAddress}");
-
-                foreach (var item in order.Items)
-                {
-                    var product = DataStore.Products.First(p => p.Id == item.ProductId);
-                    LogEvent("StockUpdated", $"Товар '{product.Name}'. Остаток: {product.Stock}");
-                }
-
-                return new Response
-                {
-                    Success = true,
-                    Message = $"Заказ №{newOrder.Id} успешно создан на сумму {newOrder.TotalPrice} BYN",
-                    Result = newOrder,
-                    Operation = OperationType.CreateOrder.ToString()
-                };
             }
             catch (Exception ex)
             {
@@ -226,15 +232,18 @@ namespace InternetShop.Server
                     };
                 }
 
-                order.Status = OrderStatus.Cancelled;
-
-                foreach (var item in order.Items)
+                lock (_stockLock)
                 {
-                    var product = DataStore.Products.FirstOrDefault(p => p.Id == item.ProductId);
-                    if (product != null)
+                    order.Status = OrderStatus.Cancelled;
+
+                    foreach (var item in order.Items)
                     {
-                        product.Stock += item.Quantity;
-                        LogEvent("StockUpdated", $"Возврат товара '{product.Name}' на склад. Остаток: {product.Stock}");
+                        var product = DataStore.Products.FirstOrDefault(p => p.Id == item.ProductId);
+                        if (product != null)
+                        {
+                            product.Stock += item.Quantity;
+                            LogEvent("StockUpdated", $"Возврат товара '{product.Name}' на склад. Остаток: {product.Stock}");
+                        }
                     }
                 }
 

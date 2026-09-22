@@ -3,11 +3,11 @@
     "Name": "Новый профиль",
     "Projects": [
       {
-        "Path": "InternetShop.Server\\InternetShop.Server.csproj",
+        "Path": "InternetShop.Client\\InternetShop.Client.csproj",
         "Action": "Start"
       },
       {
-        "Path": "InternetShop.Client\\InternetShop.Client.csproj",
+        "Path": "InternetShop.Server\\InternetShop.Server.csproj",
         "Action": "Start"
       }
     ]

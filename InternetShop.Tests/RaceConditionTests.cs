@@ -46,10 +46,9 @@ namespace InternetShop.Tests
             Assert.True(response.Success, $"Expected success but got: {response.Error}");
             Assert.Contains("Заказ №", response.Message);
 
-            // Проверяем, что товар списан
             var product = DataStore.Products.Find(p => p.Id == 1);
             Assert.NotNull(product);
-            Assert.Equal(0, product.Stock); // БЫЛО 1, СТАЛО 0
+            Assert.Equal(0, product.Stock);
         }
 
         // ============================================
@@ -58,7 +57,7 @@ namespace InternetShop.Tests
         [Fact]
         public void Test2_TwoClients_SequentialProcessing()
         {
-            // Arrange — сначала сбрасываем и устанавливаем Stock = 2
+            // Arrange
             DataStore.ResetData();
             var product = DataStore.Products.Find(p => p.Id == 1);
             product.Stock = 2;
@@ -77,7 +76,7 @@ namespace InternetShop.Tests
                 ShippingAddress = "Адрес 2"
             };
 
-            // Act — последовательно
+            // Act
             var response1 = _logic.CreateOrder(JsonConvert.SerializeObject(order1));
             var response2 = _logic.CreateOrder(JsonConvert.SerializeObject(order2));
 
@@ -115,7 +114,7 @@ namespace InternetShop.Tests
             var json1 = JsonConvert.SerializeObject(order1);
             var json2 = JsonConvert.SerializeObject(order2);
 
-            // Act — запускаем параллельно
+            // Act
             var task1 = Task.Run(() => logic1.CreateOrder(json1));
             var task2 = Task.Run(() => logic2.CreateOrder(json2));
 
@@ -124,14 +123,10 @@ namespace InternetShop.Tests
             var response1 = task1.Result;
             var response2 = task2.Result;
 
-            // Assert — оба должны быть успешными (Race Condition!)
-            // В реальной системе только один должен быть успешным
+            // Assert
             Console.WriteLine($"Response 1: Success={response1.Success}, Error={response1.Error}");
             Console.WriteLine($"Response 2: Success={response2.Success}, Error={response2.Error}");
             Console.WriteLine($"Product Stock: {DataStore.Products.Find(p => p.Id == 1)?.Stock}");
-
-            // При Race Condition оба могут получить SUCCESS, хотя товар был только 1!
-            // Это и есть демонстрация проблемы
         }
 
         // ============================================
@@ -140,7 +135,7 @@ namespace InternetShop.Tests
         [Fact]
         public void Test4_RaceCondition_TwoClients_OneItem()
         {
-            // Arrange — товар только 1!
+            // Arrange
             DataStore.ResetData();
             var product = DataStore.Products.Find(p => p.Id == 1);
             product.Stock = 1;
@@ -165,7 +160,7 @@ namespace InternetShop.Tests
             var json1 = JsonConvert.SerializeObject(order1);
             var json2 = JsonConvert.SerializeObject(order2);
 
-            // Act — запускаем параллельно
+            // Act
             var task1 = Task.Run(() => logic1.CreateOrder(json1));
             var task2 = Task.Run(() => logic2.CreateOrder(json2));
 
@@ -174,17 +169,12 @@ namespace InternetShop.Tests
             var response1 = task1.Result;
             var response2 = task2.Result;
 
-            // Assert — при Race Condition оба могут быть SUCCESS!
             Console.WriteLine("=== РЕЗУЛЬТАТЫ ЭКСПЕРИМЕНТА RACE CONDITION ===");
             Console.WriteLine($"Client 1: Success={response1.Success}, Message={response1.Message}, Error={response1.Error}");
             Console.WriteLine($"Client 2: Success={response2.Success}, Message={response2.Message}, Error={response2.Error}");
             Console.WriteLine($"Остаток товара: {DataStore.Products.Find(p => p.Id == 1)?.Stock}");
             Console.WriteLine($"Заказов создано: {DataStore.Orders.Count}");
 
-            // Проблема: оба клиента могли получить SUCCESS, хотя товар был только 1!
-            // Это и есть Race Condition — результат зависит от порядка выполнения.
-
-            // Если оба получили SUCCESS — Race Condition воспроизведён!
             if (response1.Success && response2.Success)
             {
                 Console.WriteLine("!!! RACE CONDITION ОБНАРУЖЕН: оба клиента забронировали один товар !!!");

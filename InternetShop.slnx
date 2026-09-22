@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="InternetShop.Client/InternetShop.Client.csproj" />
+  <Project Path="InternetShop.Server.Semaphore/InternetShop.Server.Semaphore.csproj" Id="d20ef875-7d1b-4069-b9f4-31574c2ec293" />
   <Project Path="InternetShop.Server/InternetShop.Server.csproj" />
   <Project Path="InternetShop.Shared/InternetShop.Shared.csproj" />
   <Project Path="InternetShop.Tests/InternetShop.Tests.csproj" Id="b0cbdaec-89e2-4e83-82e6-3e4da7158e7d" />

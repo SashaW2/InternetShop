@@ -106,8 +106,6 @@ namespace InternetShop.Server
 
                             try
                             {
-                                await Task.Delay(10000);
-
                                 response = _handler.ProcessRequest(requestJson, clientId);
                             }
                             catch (Exception ex)
