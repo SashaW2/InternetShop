@@ -32,6 +32,7 @@ namespace InternetShop.Server
 
                     case OperationType.CreateOrder:
                         return _logic.CreateOrder(request.Data, clientId);
+                        //return _logic.CreateOrderWithoutTran(request.Data, clientId);
 
                     case OperationType.CancelOrder:
                         return _logic.CancelOrder(request.Data);

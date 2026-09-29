@@ -8,12 +8,24 @@ namespace InternetShop.Server
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.InputEncoding = System.Text.Encoding.UTF8;
-
             Console.Title = "СЕРВЕР Интернет-магазина";
             Console.WriteLine("========================================");
             Console.WriteLine("   ЗАПУСК СЕРВЕРА ИНТЕРНЕТ-МАГАЗИНА");
             Console.WriteLine("========================================");
             Console.WriteLine();
+
+            if (!InternetShop.Server.Database.Database.TestConnection(out string dbError))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Не удалось подключиться к БД: {dbError}");
+                Console.ResetColor();
+                Console.WriteLine("Проверьте, что SQL Server запущен и БД InternetShopDB создана.");
+                Console.ReadKey();
+                return;
+            }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Подключение к БД установлено.");
+            Console.ResetColor();
 
             try
             {

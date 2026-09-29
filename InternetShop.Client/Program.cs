@@ -19,11 +19,11 @@ namespace InternetShop.Client
             Console.WriteLine("   КЛИЕНТ ИНТЕРНЕТ-МАГАЗИНА");
             Console.WriteLine("========================================");
 
-            Console.Write("Введите смещение часов клиента в секундах (например, 7 или -5): ");
-            if (int.TryParse(Console.ReadLine(), out int offsetSeconds))
-            {
-                _clientClockOffsetSeconds = offsetSeconds;
-            }
+            //Console.Write("Введите смещение часов клиента в секундах (например, 7 или -5): ");
+            //if (int.TryParse(Console.ReadLine(), out int offsetSeconds))
+            //{
+                //_clientClockOffsetSeconds = offsetSeconds;
+            //}
 
             ConnectToServer();
 
@@ -37,9 +37,9 @@ namespace InternetShop.Client
                 Console.WriteLine("2. Создать заказ");
                 Console.WriteLine("3. Отменить заказ");
                 Console.WriteLine("4. Оплатить заказ");
-                Console.WriteLine("5. Синхронизировать время с сервером");
-                Console.WriteLine("6. Показать локальное время клиента");
-                Console.WriteLine("7. Выход");
+                //Console.WriteLine("5. Синхронизировать время с сервером");
+                //Console.WriteLine("6. Показать локальное время клиента");
+                Console.WriteLine("5. Выход");
                 Console.WriteLine("========================================");
                 Console.Write("Выберите действие: ");
 
@@ -59,13 +59,13 @@ namespace InternetShop.Client
                     case "4":
                         HandlePayOrder();
                         break;
+                    //case "5":
+                        //HandleTimeSync();
+                        //break;
+                    //case "6":
+                        //ShowLocalTime();
+                        //break;
                     case "5":
-                        HandleTimeSync();
-                        break;
-                    case "6":
-                        ShowLocalTime();
-                        break;
-                    case "7":
                         _client.Close();
                         Console.WriteLine("До свидания!");
                         return;

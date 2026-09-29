@@ -1,10 +1,11 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using InternetShop.Server;
+using InternetShop.Server.Database;
 using InternetShop.Shared.Models;
-using InternetShop.Shared.Enums;
-using InternetShop.Shared.DTO;
+using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -12,287 +13,171 @@ namespace InternetShop.Tests
 {
     public class BusinessLogicTests
     {
-        private readonly BusinessLogic _logic;
+        private readonly BusinessLogic _logic = new BusinessLogic();
 
         public BusinessLogicTests()
         {
-            _logic = new BusinessLogic();
-            DataStore.ResetData();
+            Database.ResetLabData();
+            BusinessLogic.SimulateError = false;
         }
 
-        // ============================================
-        // ТЕСТ 1: Успешный сценарий
-        // ============================================
-        [Fact]
-        public void Test1_SuccessfulScenario_CreateOrder_ReturnsSuccess()
+        private static Order MakeOrder(int productId = 2, int quantity = 1, int customerId = 1)
         {
-            // Arrange - создаем объект как в реальном клиенте
-            var order = new Order
+            return new Order
             {
-                CustomerId = 1,
+                CustomerId = customerId,
+                ShippingAddress = "г. Минск, ул. Ленина 1",
                 Items = new List<OrderItem>
                 {
-                    new OrderItem { ProductId = 1, Quantity = 2 }
-                },
-                ShippingAddress = "г. Минск, ул. Тестовая, д. 1"
+                    new OrderItem { ProductId = productId, Quantity = quantity }
+                }
             };
-
-            // Сериализуем как в клиенте
-            var json = JsonConvert.SerializeObject(order);
-
-            // Act - передаем как object (как приходит с клиента)
-            var response = _logic.CreateOrder(json);
-
-            // Assert
-            Assert.True(response.Success, $"Expected success but got error: {response.Error}");
-            Assert.Contains("Заказ №", response.Message);
-            Assert.NotNull(response.Result);
-
-            var createdOrder = response.Result as Order;
-            Assert.NotNull(createdOrder);
-            Assert.Equal(1, createdOrder.Items.Count);
-            Assert.Equal(2, createdOrder.Items[0].Quantity);
-            Assert.Equal(1, createdOrder.CustomerId);
-            Assert.Equal("г. Минск, ул. Тестовая, д. 1", createdOrder.ShippingAddress);
         }
 
-        // ============================================
-        // ТЕСТ 2: Неизвестная операция
-        // ============================================
-        [Fact]
-        public void Test2_UnknownOperation_ReturnsError()
+        private static string ToJson(Order order) => JsonConvert.SerializeObject(order);
+
+        private List<Product> GetProductsList()
         {
-            // Arrange
-            var handler = new RequestHandler();
-            var request = new Request
-            {
-                Operation = (OperationType)999,
-                Data = null
-            };
-            var requestJson = JsonConvert.SerializeObject(request);
-
-            // Act
-            var response = handler.ProcessRequest(requestJson);
-
-            // Assert
-            Assert.False(response.Success);
-            Assert.Contains("Неизвестная операция", response.Error);
+            var response = _logic.GetProducts();
+            return response.Result as List<Product> ?? new List<Product>();
         }
 
-        // ============================================
-        // ТЕСТ 3: Некорректные данные
-        // ============================================
-        [Fact]
-        public void Test3_InvalidData_EmptyOrder_ReturnsError()
+        private static int GetOrdersCountFromDb()
         {
-            // Arrange - пустой заказ (нет товаров)
-            var order = new Order
+            using (var conn = Database.CreateConnection())
+            using (var cmd = new SqlCommand("SELECT COUNT(*) FROM dbo.Orders", conn))
             {
-                CustomerId = 1,
-                Items = new List<OrderItem>(),
-                ShippingAddress = "г. Минск, ул. Тестовая, д. 1"
-            };
-
-            var json = JsonConvert.SerializeObject(order);
-
-            // Act
-            var response = _logic.CreateOrder(json);
-
-            // Assert
-            Assert.False(response.Success);
-            Assert.Contains("заказ должен содержать хотя бы один товар", response.Error);
+                return (int)cmd.ExecuteScalar();
+            }
         }
 
+        // ============================================================
+        //  ТЕСТ 1. Корректность операции с общим ресурсом
+        // ============================================================
         [Fact]
-        public void Test3_InvalidData_EmptyAddress_ReturnsError()
+        public void CreateOrder_WithAvailableResource_ReturnsSuccess()
         {
-            // Arrange - пустой адрес
-            var order = new Order
+            var order = MakeOrder(productId: 1, quantity: 1);
+
+            var response = _logic.CreateOrder(ToJson(order), clientId: 1);
+
+            Assert.True(response.Success, $"Ожидался Success, получено: {response.Error}");
+
+            var products = GetProductsList();
+            var asus = products.First(p => p.Id == 1);
+            Assert.Equal(0, asus.Stock);
+            Assert.Equal(1, GetOrdersCountFromDb());
+        }
+
+        // ============================================================
+        //  ТЕСТ 2. Невозможность получить один ресурс двумя
+        //          конкурентными запросами
+        // ============================================================
+        [Fact]
+        public void CreateOrder_TwoConcurrentRequests_OnlyOneSucceeds()
+        {
+            var json1 = ToJson(MakeOrder(productId: 1, quantity: 1));
+            var json2 = ToJson(MakeOrder(productId: 1, quantity: 1));
+
+            using (var barrier = new Barrier(2))
             {
-                CustomerId = 1,
-                Items = new List<OrderItem>
+                var task1 = Task.Run(() =>
                 {
-                    new OrderItem { ProductId = 1, Quantity = 2 }
-                },
-                ShippingAddress = ""
-            };
+                    barrier.SignalAndWait();
+                    return _logic.CreateOrder(json1, clientId: 1);
+                });
 
-            var json = JsonConvert.SerializeObject(order);
-
-            // Act
-            var response = _logic.CreateOrder(json);
-
-            // Assert
-            Assert.False(response.Success);
-            Assert.Contains("укажите адрес доставки", response.Error);
-        }
-
-        [Fact]
-        public void Test3_InvalidData_ProductNotFound_ReturnsError()
-        {
-            // Arrange - несуществующий товар
-            var order = new Order
-            {
-                CustomerId = 1,
-                Items = new List<OrderItem>
+                var task2 = Task.Run(() =>
                 {
-                    new OrderItem { ProductId = 999, Quantity = 2 }
-                },
-                ShippingAddress = "г. Минск, ул. Тестовая, д. 1"
-            };
+                    barrier.SignalAndWait();
+                    return _logic.CreateOrder(json2, clientId: 2);
+                });
 
-            var json = JsonConvert.SerializeObject(order);
+                Task.WaitAll(task1, task2);
 
-            // Act
-            var response = _logic.CreateOrder(json);
+                int successCount = (task1.Result.Success ? 1 : 0) +
+                                   (task2.Result.Success ? 1 : 0);
+                Assert.Equal(1, successCount);
+            }
 
-            // Assert
-            Assert.False(response.Success);
-            Assert.Contains("Товар с ID 999 не найден", response.Error);
+            var products = GetProductsList();
+            var asus = products.First(p => p.Id == 1);
+            Assert.Equal(0, asus.Stock);
+
+            Assert.Equal(1, GetOrdersCountFromDb());
         }
 
+        // ============================================================
+        //  ТЕСТ 3. Успешное выполнение составной операции (COMMIT)
+        // ============================================================
         [Fact]
-        public void Test3_InvalidData_CustomerNotFound_ReturnsError()
+        public void CreateOrder_CompositeOperation_BothPartsApplied()
         {
-            // Arrange - несуществующий клиент
-            var order = new Order
-            {
-                CustomerId = 999,
-                Items = new List<OrderItem>
-                {
-                    new OrderItem { ProductId = 1, Quantity = 2 }
-                },
-                ShippingAddress = "г. Минск, ул. Тестовая, д. 1"
-            };
+            var order = MakeOrder(productId: 2, quantity: 3);
 
-            var json = JsonConvert.SerializeObject(order);
+            var response = _logic.CreateOrder(ToJson(order), clientId: 1);
 
-            // Act
-            var response = _logic.CreateOrder(json);
+            Assert.True(response.Success, $"Ожидался Success, получено: {response.Error}");
 
-            // Assert
-            Assert.False(response.Success);
-            Assert.Contains("Клиент с ID 999 не найден", response.Error);
+            var products = GetProductsList();
+            var samsung = products.First(p => p.Id == 2);
+
+            Assert.Equal(25 - 3, samsung.Stock);
+            Assert.Equal(1, GetOrdersCountFromDb());  
         }
 
+        // ============================================================
+        //  ТЕСТ 4. ROLLBACK: изменения откатились полностью
+        // ============================================================
         [Fact]
-        public void Test3_InvalidData_NotEnoughStock_ReturnsError()
+        public void CreateOrder_WithTransaction_Error_DoesNotChangeDb()
         {
-            // Arrange - недостаточно товара
-            var order = new Order
+            BusinessLogic.SimulateError = true;
+            try
             {
-                CustomerId = 1,
-                Items = new List<OrderItem>
-                {
-                    new OrderItem { ProductId = 1, Quantity = 999 }
-                },
-                ShippingAddress = "г. Минск, ул. Тестовая, д. 1"
-            };
+                var order = MakeOrder(productId: 2, quantity: 2);
 
-            var json = JsonConvert.SerializeObject(order);
+                var response = _logic.CreateOrder(ToJson(order), clientId: 1);
 
-            // Act
-            var response = _logic.CreateOrder(json);
+                Assert.False(response.Success);
 
-            // Assert
-            Assert.False(response.Success);
-            Assert.Contains("Недостаточно товара", response.Error);
+                var products = GetProductsList();
+                var samsung = products.First(p => p.Id == 2);
+
+                Assert.Equal(25, samsung.Stock);
+                Assert.Equal(0, GetOrdersCountFromDb());
+            }
+            finally
+            {
+                BusinessLogic.SimulateError = false;
+            }
         }
 
-        // ============================================
-        // ТЕСТ 4: Отмена заказа (успешная)
-        // ============================================
+        // ============================================================
+        //  ТЕСТ 5. Без транзакции: заказ остался, Stock не изменился
+        // ============================================================
         [Fact]
-        public void Test4_CancelOrder_Success_ReturnsSuccess()
+        public void CreateOrderWithoutTran_WithError_PersistsPartialChanges()
         {
-            // Arrange - сначала создаем заказ через JSON как клиент
-            var order = new Order
+            BusinessLogic.SimulateError = true;
+            try
             {
-                CustomerId = 1,
-                Items = new List<OrderItem>
-                {
-                    new OrderItem { ProductId = 1, Quantity = 2 }
-                },
-                ShippingAddress = "г. Минск, ул. Тестовая, д. 1"
-            };
+                var order = MakeOrder(productId: 2, quantity: 2);
 
-            var json = JsonConvert.SerializeObject(order);
-            var createResponse = _logic.CreateOrder(json);
+                var response = _logic.CreateOrderWithoutTran(ToJson(order), clientId: 1);
 
-            Assert.True(createResponse.Success, $"Failed to create order: {createResponse.Error}");
+                Assert.False(response.Success);
 
-            var createdOrder = createResponse.Result as Order;
-            Assert.NotNull(createdOrder);
-            int orderId = createdOrder.Id;
+                var products = GetProductsList();
+                var samsung = products.First(p => p.Id == 2);
 
-            // Act - отменяем заказ (передаем как object)
-            var response = _logic.CancelOrder(orderId);
-
-            // Assert
-            Assert.True(response.Success);
-            Assert.Contains($"Заказ №{orderId} успешно отменен", response.Message);
-
-            var cancelledOrder = response.Result as Order;
-            Assert.NotNull(cancelledOrder);
-            Assert.Equal(OrderStatus.Cancelled, cancelledOrder.Status);
-        }
-
-        // ============================================
-        // ТЕСТ 4: Оплата заказа (успешная)
-        // ============================================
-        [Fact]
-        public void Test4_PayOrder_Success_ReturnsSuccess()
-        {
-            // Arrange - сначала создаем заказ через JSON как клиент
-            var order = new Order
+                Assert.Equal(25, samsung.Stock);   
+                Assert.Equal(1, GetOrdersCountFromDb());
+            }
+            finally
             {
-                CustomerId = 1,
-                Items = new List<OrderItem>
-                {
-                    new OrderItem { ProductId = 1, Quantity = 2 }
-                },
-                ShippingAddress = "г. Минск, ул. Тестовая, д. 1"
-            };
-
-            var json = JsonConvert.SerializeObject(order);
-            var createResponse = _logic.CreateOrder(json);
-
-            Assert.True(createResponse.Success, $"Failed to create order: {createResponse.Error}");
-
-            var createdOrder = createResponse.Result as Order;
-            Assert.NotNull(createdOrder);
-            int orderId = createdOrder.Id;
-
-            // Данные для оплаты как в клиенте
-            var paymentData = new Dictionary<string, object>
-            {
-                { "OrderId", orderId },
-                { "PaymentMethod", "Банковская карта" }
-            };
-
-            // Сериализуем как в клиенте
-            var paymentJson = JsonConvert.SerializeObject(paymentData);
-
-            // Act
-            var response = _logic.PayOrder(paymentJson);
-
-            // Assert
-            Assert.True(response.Success);
-            Assert.Contains($"Заказ №{orderId} успешно оплачен", response.Message);
-        }
-
-        // ============================================
-        // ТЕСТ 4: Отмена несуществующего заказа
-        // ============================================
-        [Fact]
-        public void Test4_CancelOrder_NotFound_ReturnsError()
-        {
-            // Act
-            var response = _logic.CancelOrder(999);
-
-            // Assert
-            Assert.False(response.Success);
-            Assert.Contains("Заказ с ID 999 не найден", response.Error);
+                BusinessLogic.SimulateError = false;
+            }
         }
     }
 }

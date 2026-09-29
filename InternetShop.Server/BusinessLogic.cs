@@ -1,10 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Threading;
-using InternetShop.Shared.Models;
-using InternetShop.Shared.Enums;
+using System.ComponentModel.Design;
+using System.Linq;
+using InternetShop.Server.Database;
+using InternetShop.Server.Database.Repositories;
 using InternetShop.Shared.DTO;
+using InternetShop.Shared.Enums;
+using InternetShop.Shared.Models;
+using Microsoft.Data.SqlClient;
 
 namespace InternetShop.Server
 {
@@ -12,11 +15,18 @@ namespace InternetShop.Server
     {
         private static readonly object _stockLock = new object();
 
+        private readonly ProductRepository _products = new ProductRepository();
+        private readonly OrderRepository _orders = new OrderRepository();
+        private readonly PaymentRepository _payments = new PaymentRepository();
+        private readonly CustomerRepository _customers = new CustomerRepository();
+
+        public static bool SimulateError { get; set; } = false;
+
         public Response GetProducts()
         {
             try
             {
-                var products = DataStore.Products;
+                var products = _products.GetAll();
                 return new Response
                 {
                     Success = true,
@@ -25,14 +35,13 @@ namespace InternetShop.Server
                     Operation = OperationType.GetProducts.ToString()
                 };
             }
+            catch (SqlException sqlEx)
+            {
+                return Fail($"Ошибка БД при получении товаров: {sqlEx.Message}", OperationType.GetProducts);
+            }
             catch (Exception ex)
             {
-                return new Response
-                {
-                    Success = false,
-                    Error = $"Ошибка при получении товаров: {ex.Message}",
-                    Operation = OperationType.GetProducts.ToString()
-                };
+                return Fail($"Ошибка при получении товаров: {ex.Message}", OperationType.GetProducts);
             }
         }
 
@@ -40,148 +49,295 @@ namespace InternetShop.Server
         {
             try
             {
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → START Reserve (CreateOrder)");
+
                 if (data == null)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = "Некорректные данные: заказ не может быть пустым",
-                        Operation = OperationType.CreateOrder.ToString()
-                    };
-                }
+                    return Fail("Некорректные данные: заказ не может быть пустым",
+                                OperationType.CreateOrder);
 
                 var order = Newtonsoft.Json.JsonConvert.DeserializeObject<Order>(data.ToString());
 
+                if (order == null)
+                    return Fail("Некорректные данные: не удалось разобрать заказ",
+                                OperationType.CreateOrder);
+
                 if (order.Items == null || !order.Items.Any())
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = "Некорректные данные: заказ должен содержать хотя бы один товар",
-                        Operation = OperationType.CreateOrder.ToString()
-                    };
-                }
+                    return Fail("Некорректные данные: заказ должен содержать хотя бы один товар",
+                                OperationType.CreateOrder);
 
                 if (order.CustomerId <= 0)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = "Некорректные данные: укажите ID клиента",
-                        Operation = OperationType.CreateOrder.ToString()
-                    };
-                }
-
-                var customer = DataStore.Customers.FirstOrDefault(c => c.Id == order.CustomerId);
-                if (customer == null)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = $"Клиент с ID {order.CustomerId} не найден",
-                        Operation = OperationType.CreateOrder.ToString()
-                    };
-                }
+                    return Fail("Некорректные данные: укажите ID клиента",
+                                OperationType.CreateOrder);
 
                 if (string.IsNullOrWhiteSpace(order.ShippingAddress))
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = "Некорректные данные: укажите адрес доставки",
-                        Operation = OperationType.CreateOrder.ToString()
-                    };
-                }
+                    return Fail("Некорректные данные: укажите адрес доставки",
+                                OperationType.CreateOrder);
+
+                if (!_customers.Exists(order.CustomerId))
+                    return Fail($"Клиент с ID {order.CustomerId} не найден",
+                                OperationType.CreateOrder);
+
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Wait for LOCK");
 
                 lock (_stockLock)
                 {
                     Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → LOCK");
 
-                    int itemId = 1;
-                    foreach (var item in order.Items)
+                    using (var conn = Database.Database.CreateConnection())
+                    using (var tx = conn.BeginTransaction(System.Data.IsolationLevel.Serializable))
                     {
-                        var product = DataStore.Products.FirstOrDefault(p => p.Id == item.ProductId);
-                        if (product == null)
+                        try
                         {
-                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK (товар не найден)");
-                            return new Response
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → BEGIN TRANSACTION");
+
+                            decimal totalPrice = 0;
+
+                            foreach (var item in order.Items)
                             {
-                                Success = false,
-                                Error = $"Товар с ID {item.ProductId} не найден",
-                                Operation = OperationType.CreateOrder.ToString()
-                            };
-                        }
+                                var product = _products.GetById(item.ProductId);
+                                if (product == null)
+                                {
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ROLLBACK (товар не найден)");
+                                    tx.Rollback();
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+                                    return Fail($"Товар с ID {item.ProductId} не найден",
+                                                OperationType.CreateOrder);
+                                }
 
-                        int currentStock = product.Stock;
-                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Available = {currentStock} (товар '{product.Name}')");
+                                if (item.Quantity <= 0)
+                                {
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ROLLBACK (некорректное количество)");
+                                    tx.Rollback();
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+                                    return Fail($"Некорректное количество для товара '{product.Name}'",
+                                                OperationType.CreateOrder);
+                                }
 
-                        Thread.Sleep(5000);
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Available = {product.Stock} (товар '{product.Name}')");
 
-                        if (currentStock < item.Quantity)
-                        {
-                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → FAIL (недостаточно товара)");
+                                //Thread.Sleep(5000);
+
+                                if (product.Stock < item.Quantity)
+                                {
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → FAIL (недостаточно товара)");
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ROLLBACK");
+                                    tx.Rollback();
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+                                    return Fail($"Недостаточно товара '{product.Name}'. В наличии: {product.Stock}, запрошено: {item.Quantity}",
+                                                OperationType.CreateOrder);
+                                }
+
+                                item.Price = product.Price;
+                                totalPrice += product.Price * item.Quantity;
+                            }
+
+                            order.CreatedAt = DateTime.Now;
+                            order.Status = OrderStatus.Pending;
+                            order.TotalPrice = totalPrice;
+
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Op1: INSERT Order + OrderItems");
+                            int newOrderId = _orders.Insert(conn, tx, order);
+                            order.Id = newOrderId;
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Op1 OK (заказ №{newOrderId})");
+
+                            if (SimulateError)
+                            {
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → !!! ИСКУССТВЕННАЯ ОШИБКА между операциями !!!");
+                                tx.Rollback();
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ROLLBACK выполнен (заказ №{newOrderId} отменён)");
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+                                return Fail("Искусственная ошибка между операциями (с транзакцией: изменения отменены)",
+                                            OperationType.CreateOrder);
+                            }
+
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Op2: UPDATE Stock");
+                            foreach (var item in order.Items)
+                            {
+                                bool ok = _products.TryDecreaseStock(conn, tx, item.ProductId, item.Quantity);
+                                if (!ok)
+                                {
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → FAIL (не удалось уменьшить остаток)");
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ROLLBACK");
+                                    tx.Rollback();
+                                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+                                    return Fail($"Не удалось уменьшить остаток товара ID={item.ProductId}",
+                                                OperationType.CreateOrder);
+                                }
+                            }
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Op2 OK");
+
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → COMMIT");
+                            tx.Commit();
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → COMMIT выполнен");
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → SUCCESS (заказ №{newOrderId})");
                             Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+
+                            LogEvent("OrderCreated",
+                                     $"Заказ №{newOrderId} создан на сумму {order.TotalPrice} BYN");
+
                             return new Response
                             {
-                                Success = false,
-                                Error = $"Недостаточно товара '{product.Name}' на складе. В наличии: {currentStock}, запрошено: {item.Quantity}",
+                                Success = true,
+                                Message = $"Заказ №{newOrderId} успешно создан на сумму {order.TotalPrice} BYN",
+                                Result = order,
                                 Operation = OperationType.CreateOrder.ToString()
                             };
                         }
+                        catch (Exception ex)
+                        {
+                            try
+                            {
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → ИСКЛЮЧЕНИЕ: {ex.Message} → ROLLBACK");
+                                tx.Rollback();
+                            }
+                            catch { }
 
-                        item.Id = itemId++;
-                        item.Price = product.Price;
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+                            return Fail($"Ошибка внутри транзакции: {ex.Message}",
+                                        OperationType.CreateOrder);
+                        }
                     }
-
-                    var newOrder = new Order
-                    {
-                        Id = DataStore.GetNextOrderId(),
-                        CustomerId = order.CustomerId,
-                        Items = order.Items,
-                        CreatedAt = DateTime.Now,
-                        Status = OrderStatus.Pending,
-                        TotalPrice = order.Items.Sum(i => i.Price * i.Quantity),
-                        ShippingAddress = order.ShippingAddress
-                    };
-
-                    DataStore.Orders.Add(newOrder);
-
-                    foreach (var item in order.Items)
-                    {
-                        var product = DataStore.Products.First(p => p.Id == item.ProductId);
-                        int oldStock = product.Stock;
-                        product.Stock -= item.Quantity;
-                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → SUCCESS (товар '{product.Name}': {oldStock} → {product.Stock})");
-                    }
-
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
-
-                    LogEvent("OrderCreated", $"Заказ №{newOrder.Id} создан клиентом {customer.FirstName} {customer.LastName} на сумму {newOrder.TotalPrice} BYN");
-                    LogEvent("OrderCreated", $"  Адрес доставки: {newOrder.ShippingAddress}");
-
-                    foreach (var item in order.Items)
-                    {
-                        var product = DataStore.Products.First(p => p.Id == item.ProductId);
-                        LogEvent("StockUpdated", $"Товар '{product.Name}'. Остаток: {product.Stock}");
-                    }
-
-                    return new Response
-                    {
-                        Success = true,
-                        Message = $"Заказ №{newOrder.Id} успешно создан на сумму {newOrder.TotalPrice} BYN",
-                        Result = newOrder,
-                        Operation = OperationType.CreateOrder.ToString()
-                    };
                 }
+            }
+            catch (SqlException sqlEx)
+            {
+                return Fail($"Ошибка целостности данных: {sqlEx.Message}",
+                            OperationType.CreateOrder);
             }
             catch (Exception ex)
             {
-                return new Response
+                return Fail($"Ошибка при создании заказа: {ex.Message}",
+                            OperationType.CreateOrder);
+            }
+        }
+
+        public Response CreateOrderWithoutTran(object data, int clientId = 0)
+        {
+            try
+            {
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → START Reserve (CreateOrder)");
+
+                if (data == null)
+                    return Fail("Некорректные данные: заказ не может быть пустым",
+                                OperationType.CreateOrder);
+
+                var order = Newtonsoft.Json.JsonConvert.DeserializeObject<Order>(data.ToString());
+
+                if (order == null)
+                    return Fail("Некорректные данные: не удалось разобрать заказ",
+                                OperationType.CreateOrder);
+
+                if (order.Items == null || !order.Items.Any())
+                    return Fail("Некорректные данные: заказ должен содержать хотя бы один товар",
+                                OperationType.CreateOrder);
+
+                if (order.CustomerId <= 0)
+                    return Fail("Некорректные данные: укажите ID клиента",
+                                OperationType.CreateOrder);
+
+                if (string.IsNullOrWhiteSpace(order.ShippingAddress))
+                    return Fail("Некорректные данные: укажите адрес доставки",
+                                OperationType.CreateOrder);
+
+                if (!_customers.Exists(order.CustomerId))
+                    return Fail($"Клиент с ID {order.CustomerId} не найден",
+                                OperationType.CreateOrder);
+
+                lock (_stockLock)
                 {
-                    Success = false,
-                    Error = $"Ошибка при создании заказа: {ex.Message}",
-                    Operation = OperationType.CreateOrder.ToString()
-                };
+                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → LOCK");
+
+                    using (var conn = Database.Database.CreateConnection())
+                    {
+                        decimal totalPrice = 0;
+
+                        foreach (var item in order.Items)
+                        {
+                            var product = _products.GetById(item.ProductId);
+                            if (product == null)
+                            {
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK (товар не найден)");
+                                return Fail($"Товар с ID {item.ProductId} не найден",
+                                            OperationType.CreateOrder);
+                            }
+
+                            if (item.Quantity <= 0)
+                            {
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK (некорректное количество)");
+                                return Fail($"Некорректное количество для товара '{product.Name}'",
+                                            OperationType.CreateOrder);
+                            }
+
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Available = {product.Stock} (товар '{product.Name}')");
+
+                            if (product.Stock < item.Quantity)
+                            {
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → FAIL (недостаточно товара)");
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+                                return Fail($"Недостаточно товара '{product.Name}'. В наличии: {product.Stock}, запрошено: {item.Quantity}",
+                                            OperationType.CreateOrder);
+                            }
+
+                            item.Price = product.Price;
+                            totalPrice += product.Price * item.Quantity;
+                        }
+
+                        order.CreatedAt = DateTime.Now;
+                        order.Status = OrderStatus.Pending;
+                        order.TotalPrice = totalPrice;
+
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Op1: INSERT Order + OrderItems");
+                        int newOrderId = _orders.Insert(conn, null, order);
+                        order.Id = newOrderId;
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Op1 OK (заказ №{newOrderId})");
+
+                        if (SimulateError)
+                        {
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → !!! ИСКУССТВЕННАЯ ОШИБКА между операциями !!!");
+                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+                            return Fail("Искусственная ошибка между операциями (без транзакции: заказ сохранён, остаток НЕ уменьшен)",
+                                        OperationType.CreateOrder);
+                        }
+
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Op2: UPDATE Stock");
+                        foreach (var item in order.Items)
+                        {
+                            bool ok = _products.TryDecreaseStock(conn, null, item.ProductId, item.Quantity);
+                            if (!ok)
+                            {
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → FAIL (не удалось уменьшить остаток)");
+                                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+                                return Fail($"Не удалось уменьшить остаток товара ID={item.ProductId}",
+                                            OperationType.CreateOrder);
+                            }
+                        }
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → Op2 OK");
+
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → SUCCESS (заказ №{newOrderId})");
+                        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → UNLOCK");
+
+                        LogEvent("OrderCreated",
+                                 $"Заказ №{newOrderId} создан на сумму {order.TotalPrice} BYN");
+
+                        return new Response
+                        {
+                            Success = true,
+                            Message = $"Заказ №{newOrderId} успешно создан на сумму {order.TotalPrice} BYN",
+                            Result = order,
+                            Operation = OperationType.CreateOrder.ToString()
+                        };
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                return Fail($"Ошибка целостности данных: {sqlEx.Message}",
+                            OperationType.CreateOrder);
+            }
+            catch (Exception ex)
+            {
+                return Fail($"Ошибка при создании заказа: {ex.Message}",
+                            OperationType.CreateOrder);
             }
         }
 
@@ -190,90 +346,59 @@ namespace InternetShop.Server
             try
             {
                 if (data == null)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = "Некорректные данные: укажите ID заказа",
-                        Operation = OperationType.CancelOrder.ToString()
-                    };
-                }
+                    return Fail("Некорректные данные: укажите ID заказа",
+                                OperationType.CancelOrder);
 
                 int orderId = Convert.ToInt32(data);
 
-                var order = DataStore.Orders.FirstOrDefault(o => o.Id == orderId);
-                if (order == null)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = $"Заказ с ID {orderId} не найден",
-                        Operation = OperationType.CancelOrder.ToString()
-                    };
-                }
-
-                if (order.Status == OrderStatus.Cancelled)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = $"Заказ №{orderId} уже отменен",
-                        Operation = OperationType.CancelOrder.ToString()
-                    };
-                }
-
-                if (order.Status == OrderStatus.Paid)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = $"Нельзя отменить оплаченный заказ №{orderId}",
-                        Operation = OperationType.CancelOrder.ToString()
-                    };
-                }
-
                 lock (_stockLock)
                 {
-                    order.Status = OrderStatus.Cancelled;
+                    var order = _orders.GetById(orderId);
+                    if (order == null)
+                        return Fail($"Заказ с ID {orderId} не найден",
+                                    OperationType.CancelOrder);
 
-                    foreach (var item in order.Items)
+                    if (order.Status == OrderStatus.Cancelled)
+                        return Fail($"Заказ №{orderId} уже отменен",
+                                    OperationType.CancelOrder);
+
+                    if (order.Status == OrderStatus.Paid)
+                        return Fail($"Нельзя отменить оплаченный заказ №{orderId}",
+                                    OperationType.CancelOrder);
+
+                    using (var conn = Database.Database.CreateConnection())
                     {
-                        var product = DataStore.Products.FirstOrDefault(p => p.Id == item.ProductId);
-                        if (product != null)
-                        {
-                            product.Stock += item.Quantity;
-                            LogEvent("StockUpdated", $"Возврат товара '{product.Name}' на склад. Остаток: {product.Stock}");
-                        }
+                        _orders.UpdateStatus(conn, null, orderId, OrderStatus.Cancelled);
+
+                        foreach (var item in order.Items)
+                            _products.IncreaseStock(conn, null, item.ProductId, item.Quantity);
                     }
+
+                    LogEvent("OrderCancelled", $"Заказ №{orderId} отменен");
+
+                    return new Response
+                    {
+                        Success = true,
+                        Message = $"Заказ №{orderId} успешно отменен",
+                        Result = order,
+                        Operation = OperationType.CancelOrder.ToString()
+                    };
                 }
-
-                LogEvent("OrderCancelled", $"Заказ №{orderId} отменен");
-
-                return new Response
-                {
-                    Success = true,
-                    Message = $"Заказ №{orderId} успешно отменен",
-                    Result = order,
-                    Operation = OperationType.CancelOrder.ToString()
-                };
             }
             catch (FormatException)
             {
-                return new Response
-                {
-                    Success = false,
-                    Error = "Некорректные данные: ID заказа должен быть числом",
-                    Operation = OperationType.CancelOrder.ToString()
-                };
+                return Fail("Некорректные данные: ID заказа должен быть числом",
+                            OperationType.CancelOrder);
+            }
+            catch (SqlException sqlEx)
+            {
+                return Fail($"Ошибка целостности данных: {sqlEx.Message}",
+                            OperationType.CancelOrder);
             }
             catch (Exception ex)
             {
-                return new Response
-                {
-                    Success = false,
-                    Error = $"Ошибка при отмене заказа: {ex.Message}",
-                    Operation = OperationType.CancelOrder.ToString()
-                };
+                return Fail($"Ошибка при отмене заказа: {ex.Message}",
+                            OperationType.CancelOrder);
             }
         }
 
@@ -282,108 +407,81 @@ namespace InternetShop.Server
             try
             {
                 if (data == null)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = "Некорректные данные: укажите ID заказа и способ оплаты",
-                        Operation = OperationType.PayOrder.ToString()
-                    };
-                }
+                    return Fail("Некорректные данные: укажите ID заказа и способ оплаты",
+                                OperationType.PayOrder);
 
                 var paymentRequest = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(data.ToString());
 
-                if (!paymentRequest.ContainsKey("OrderId"))
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = "Некорректные данные: укажите ID заказа",
-                        Operation = OperationType.PayOrder.ToString()
-                    };
-                }
+                if (paymentRequest == null || !paymentRequest.ContainsKey("OrderId"))
+                    return Fail("Некорректные данные: укажите ID заказа",
+                                OperationType.PayOrder);
 
                 int orderId = Convert.ToInt32(paymentRequest["OrderId"]);
 
-                string paymentMethod = "Банковская карта";
+                string method = "Банковская карта";
                 if (paymentRequest.ContainsKey("PaymentMethod") && paymentRequest["PaymentMethod"] != null)
-                {
-                    paymentMethod = paymentRequest["PaymentMethod"].ToString();
-                }
+                    method = paymentRequest["PaymentMethod"].ToString();
 
-                var order = DataStore.Orders.FirstOrDefault(o => o.Id == orderId);
+                var order = _orders.GetById(orderId);
                 if (order == null)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = $"Заказ с ID {orderId} не найден",
-                        Operation = OperationType.PayOrder.ToString()
-                    };
-                }
+                    return Fail($"Заказ с ID {orderId} не найден", OperationType.PayOrder);
 
                 if (order.Status == OrderStatus.Paid)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = $"Заказ №{orderId} уже оплачен",
-                        Operation = OperationType.PayOrder.ToString()
-                    };
-                }
+                    return Fail($"Заказ №{orderId} уже оплачен", OperationType.PayOrder);
 
                 if (order.Status == OrderStatus.Cancelled)
-                {
-                    return new Response
-                    {
-                        Success = false,
-                        Error = $"Нельзя оплатить отмененный заказ №{orderId}",
-                        Operation = OperationType.PayOrder.ToString()
-                    };
-                }
+                    return Fail($"Нельзя оплатить отмененный заказ №{orderId}", OperationType.PayOrder);
 
                 var payment = new Payment
                 {
-                    Id = DataStore.GetNextPaymentId(),
                     OrderId = orderId,
                     Amount = order.TotalPrice,
-                    PaymentMethod = paymentMethod,
+                    PaymentMethod = method,
                     PaymentDate = DateTime.Now,
                     IsSuccessful = true
                 };
 
-                DataStore.Payments.Add(payment);
+                using (var conn = Database.Database.CreateConnection())
+                {
+                    payment.Id = _payments.Insert(conn, null, payment);
+                    _orders.UpdateStatus(conn, null, orderId, OrderStatus.Paid);
+
+                    using (var cmd = new SqlCommand("UPDATE dbo.Orders SET PaidAt = @d WHERE Id = @id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@d", DateTime.Now);
+                        cmd.Parameters.AddWithValue("@id", orderId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
 
                 order.Status = OrderStatus.Paid;
                 order.PaidAt = DateTime.Now;
 
-                LogEvent("PaymentCompleted", $"Заказ №{orderId} оплачен на сумму {order.TotalPrice} BYN через {paymentMethod}");
+                LogEvent("PaymentCompleted",
+                         $"Заказ №{orderId} оплачен на {order.TotalPrice} BYN через {method}");
 
                 return new Response
                 {
                     Success = true,
-                    Message = $"Заказ №{orderId} успешно оплачен на сумму {order.TotalPrice} BYN через {paymentMethod}",
+                    Message = $"Заказ №{orderId} успешно оплачен на сумму {order.TotalPrice} BYN через {method}",
                     Result = new { Order = order, Payment = payment },
                     Operation = OperationType.PayOrder.ToString()
                 };
             }
             catch (FormatException)
             {
-                return new Response
-                {
-                    Success = false,
-                    Error = "Некорректные данные: ID заказа должен быть числом",
-                    Operation = OperationType.PayOrder.ToString()
-                };
+                return Fail("Некорректные данные: ID заказа должен быть числом",
+                            OperationType.PayOrder);
+            }
+            catch (SqlException sqlEx)
+            {
+                return Fail($"Ошибка целостности данных: {sqlEx.Message}",
+                            OperationType.PayOrder);
             }
             catch (Exception ex)
             {
-                return new Response
-                {
-                    Success = false,
-                    Error = $"Ошибка при оплате заказа: {ex.Message}",
-                    Operation = OperationType.PayOrder.ToString()
-                };
+                return Fail($"Ошибка при оплате заказа: {ex.Message}",
+                            OperationType.PayOrder);
             }
         }
 
@@ -392,8 +490,7 @@ namespace InternetShop.Server
             try
             {
                 DateTime serverTime = DateTime.UtcNow;
-
-                int artificialDelayMs = 0;
+                int artificialDelayMs = 1000;
 
                 Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] SERVER TIME → зафиксировано {serverTime:HH:mm:ss.fff} (UTC), задержка ответа {artificialDelayMs} мс");
 
@@ -417,14 +514,17 @@ namespace InternetShop.Server
             }
             catch (Exception ex)
             {
-                return new Response
-                {
-                    Success = false,
-                    Error = $"Ошибка при получении времени сервера: {ex.Message}",
-                    Operation = OperationType.GetServerTime.ToString()
-                };
+                return Fail($"Ошибка при получении времени сервера: {ex.Message}",
+                            OperationType.GetServerTime);
             }
         }
+
+        private static Response Fail(string message, OperationType op) => new Response
+        {
+            Success = false,
+            Error = message,
+            Operation = op.ToString()
+        };
 
         private void LogEvent(string eventName, string description)
         {
