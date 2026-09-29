@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ using Xunit;
 
 namespace InternetShop.Tests
 {
-    public class BusinessLogicTests
+    public class BusinessLogicTests : IDisposable
     {
         private readonly BusinessLogic _logic = new BusinessLogic();
 
@@ -19,6 +20,12 @@ namespace InternetShop.Tests
         {
             Database.ResetLabData();
             BusinessLogic.SimulateError = false;
+        }
+
+        public void Dispose()
+        {
+            BusinessLogic.SimulateError = false;
+            Database.ResetLabData();
         }
 
         private static Order MakeOrder(int productId = 2, int quantity = 1, int customerId = 1)
@@ -123,7 +130,7 @@ namespace InternetShop.Tests
             var samsung = products.First(p => p.Id == 2);
 
             Assert.Equal(25 - 3, samsung.Stock);
-            Assert.Equal(1, GetOrdersCountFromDb());  
+            Assert.Equal(1, GetOrdersCountFromDb());
         }
 
         // ============================================================
@@ -133,24 +140,18 @@ namespace InternetShop.Tests
         public void CreateOrder_WithTransaction_Error_DoesNotChangeDb()
         {
             BusinessLogic.SimulateError = true;
-            try
-            {
-                var order = MakeOrder(productId: 2, quantity: 2);
 
-                var response = _logic.CreateOrder(ToJson(order), clientId: 1);
+            var order = MakeOrder(productId: 2, quantity: 2);
 
-                Assert.False(response.Success);
+            var response = _logic.CreateOrder(ToJson(order), clientId: 1);
 
-                var products = GetProductsList();
-                var samsung = products.First(p => p.Id == 2);
+            Assert.False(response.Success);
 
-                Assert.Equal(25, samsung.Stock);
-                Assert.Equal(0, GetOrdersCountFromDb());
-            }
-            finally
-            {
-                BusinessLogic.SimulateError = false;
-            }
+            var products = GetProductsList();
+            var samsung = products.First(p => p.Id == 2);
+
+            Assert.Equal(25, samsung.Stock);
+            Assert.Equal(0, GetOrdersCountFromDb());
         }
 
         // ============================================================
@@ -160,24 +161,18 @@ namespace InternetShop.Tests
         public void CreateOrderWithoutTran_WithError_PersistsPartialChanges()
         {
             BusinessLogic.SimulateError = true;
-            try
-            {
-                var order = MakeOrder(productId: 2, quantity: 2);
 
-                var response = _logic.CreateOrderWithoutTran(ToJson(order), clientId: 1);
+            var order = MakeOrder(productId: 2, quantity: 2);
 
-                Assert.False(response.Success);
+            var response = _logic.CreateOrderWithoutTran(ToJson(order), clientId: 1);
 
-                var products = GetProductsList();
-                var samsung = products.First(p => p.Id == 2);
+            Assert.False(response.Success);
 
-                Assert.Equal(25, samsung.Stock);   
-                Assert.Equal(1, GetOrdersCountFromDb());
-            }
-            finally
-            {
-                BusinessLogic.SimulateError = false;
-            }
+            var products = GetProductsList();
+            var samsung = products.First(p => p.Id == 2);
+
+            Assert.Equal(25, samsung.Stock);
+            Assert.Equal(1, GetOrdersCountFromDb());
         }
     }
 }
