@@ -10,11 +10,7 @@ namespace InternetShop.Client
     {
         public static Request BuildGetProducts()
         {
-            return new Request
-            {
-                Operation = OperationType.GetProducts,
-                Data = null
-            };
+            return new Request { Operation = OperationType.GetProducts, Data = null };
         }
 
         public static Request BuildCreateOrder(int customerId, List<OrderItem> items, string address)
@@ -26,21 +22,12 @@ namespace InternetShop.Client
                 ShippingAddress = address,
                 CreatedAt = DateTime.Now
             };
-
-            return new Request
-            {
-                Operation = OperationType.CreateOrder,
-                Data = order
-            };
+            return new Request { Operation = OperationType.CreateOrder, Data = order };
         }
 
         public static Request BuildCancelOrder(int orderId)
         {
-            return new Request
-            {
-                Operation = OperationType.CancelOrder,
-                Data = orderId
-            };
+            return new Request { Operation = OperationType.CancelOrder, Data = orderId };
         }
 
         public static Request BuildPayOrder(int orderId, string paymentMethod)
@@ -50,21 +37,18 @@ namespace InternetShop.Client
                 { "OrderId", orderId },
                 { "PaymentMethod", paymentMethod }
             };
-
-            return new Request
-            {
-                Operation = OperationType.PayOrder,
-                Data = paymentData
-            };
+            return new Request { Operation = OperationType.PayOrder, Data = paymentData };
         }
 
         public static Request BuildGetServerTime()
         {
-            return new Request
-            {
-                Operation = OperationType.GetServerTime,
-                Data = null
-            };
+            return new Request { Operation = OperationType.GetServerTime, Data = null };
+        }
+
+        public static Request BuildUpdateStock(int productId, int newStock)
+        {
+            var req = new UpdateStockRequest { ProductId = productId, NewStock = newStock };
+            return new Request { Operation = OperationType.UpdateStock, Data = req };
         }
     }
 }

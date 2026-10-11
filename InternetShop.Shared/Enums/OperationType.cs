@@ -10,6 +10,7 @@ namespace InternetShop.Shared.Enums
         CreateOrder = 2,
         CancelOrder = 3,
         PayOrder = 4,
-        GetServerTime = 5
+        GetServerTime = 5,
+        UpdateStock = 6
     }
 }

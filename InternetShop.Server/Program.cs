@@ -1,4 +1,5 @@
 ﻿using System;
+using InternetShop.Server.Database;
 
 namespace InternetShop.Server
 {
@@ -12,24 +13,49 @@ namespace InternetShop.Server
             Console.WriteLine("========================================");
             Console.WriteLine("   ЗАПУСК СЕРВЕРА ИНТЕРНЕТ-МАГАЗИНА");
             Console.WriteLine("========================================");
-            Console.WriteLine();
 
-            if (!InternetShop.Server.Database.Database.TestConnection(out string dbError))
+            if (!Database.Database.TestPrimaryConnection(out string primaryError))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Не удалось подключиться к БД: {dbError}");
+                Console.WriteLine($"Не удалось подключиться к Primary: {primaryError}");
                 Console.ResetColor();
-                Console.WriteLine("Проверьте, что SQL Server запущен и БД InternetShopDB создана.");
                 Console.ReadKey();
                 return;
             }
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Подключение к БД установлено.");
+            Console.WriteLine("Подключение к Primary установлено.");
+            Console.ResetColor();
+
+            if (!Database.Database.TestReplicaConnection(out string replicaError))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Не удалось подключиться к Replica: {replicaError}");
+                Console.ResetColor();
+                Console.ReadKey();
+                return;
+            }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Подключение к Replica установлено.");
+            Console.ResetColor();
+
+            var rm = new ReplicationManager();
+            if (rm.CheckConsistency(out string report))
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Проверка начального состояния: {report}");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"Внимание! {report}");
+            }
             Console.ResetColor();
 
             try
             {
                 var server = new Server(3000);
+                Database.Database.SetPrimaryAvailable(true);
+                //new ReplicationManager().SynchronizeReplicaToPrimary();
                 server.Start();
             }
             catch (Exception ex)

@@ -1,11 +1,11 @@
 -- Создание базы данных
-IF DB_ID('InternetShopDB') IS NULL
+IF DB_ID('InternetShopDB_Primary') IS NULL
 BEGIN
-    CREATE DATABASE InternetShopDB;
+    CREATE DATABASE InternetShopDB_Primary;
 END
 GO
 
-USE InternetShopDB;
+USE InternetShopDB_Primary;
 GO
 
 -- Клиенты
