@@ -105,7 +105,7 @@ namespace InternetShop.Server.Database
                     }
                 }
 
-                report = "Primary и Replica согласованы.";
+                report = "Primary и Replica согласованы";
                 return true;
             }
             catch (Exception ex)

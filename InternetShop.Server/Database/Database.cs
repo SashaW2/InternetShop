@@ -18,7 +18,6 @@ namespace InternetShop.Server.Database
 
         public static bool IsPrimaryAvailable() => _primaryAvailable;
         public static bool IsReplicaAvailable() => _replicaAvailable;
-        public static bool IsUsingReplica() => !_primaryAvailable;
 
         public static string GetPrimaryConnectionStringForSync() => PrimaryConnectionString;
         public static string GetReplicaConnectionStringForSync() => ReplicaConnectionString;

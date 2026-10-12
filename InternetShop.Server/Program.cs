@@ -54,8 +54,9 @@ namespace InternetShop.Server
             try
             {
                 var server = new Server(3000);
-                Database.Database.SetPrimaryAvailable(true);
-                //new ReplicationManager().SynchronizeReplicaToPrimary();
+                Database.Database.SetPrimaryAvailable(false);
+                Database.Database.SetReplicaAvailable(false);
+                new ReplicationManager().SynchronizeReplicaToPrimary();
                 server.Start();
             }
             catch (Exception ex)
