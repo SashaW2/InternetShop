@@ -94,6 +94,49 @@ BEGIN
 END
 GO
 
+
+USE InternetShopDB_Primary;
+GO
+CREATE OR ALTER PROCEDURE dbo.ResetLabData
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DELETE FROM dbo.Payments;
+    DELETE FROM dbo.OrderItems;
+    DELETE FROM dbo.Orders;
+    DELETE FROM dbo.Products;
+    DELETE FROM dbo.Customers;
+
+    SET IDENTITY_INSERT dbo.Customers ON;
+
+    INSERT INTO dbo.Customers (Id, FirstName, LastName, Email, Phone, RegisteredAt) VALUES
+    (1, N'Иван',  N'Петров',  N'ivan@mail.ru',  N'+375-29-123-45-67', DATEADD(DAY,-30, SYSUTCDATETIME())),
+    (2, N'Мария', N'Иванова', N'maria@mail.ru', N'+375-29-765-43-21', DATEADD(DAY,-15, SYSUTCDATETIME()));
+
+    SET IDENTITY_INSERT dbo.Customers OFF;
+
+    SET IDENTITY_INSERT dbo.Products ON;
+
+    INSERT INTO dbo.Products (Id, Name, Description, Price, Stock, Category) VALUES
+    (1, N'Ноутбук ASUS',        N'15.6", Intel Core i5, 8GB RAM',   1899.99, 1,  N'Электроника'),
+    (2, N'Смартфон Samsung',    N'6.4", 128GB, 5G',                 1099.99, 25, N'Электроника'),
+    (3, N'Наушники Sony',       N'Беспроводные, шумоподавление',     299.99, 50, N'Аксессуары'),
+    (4, N'Книга C# в действии', N'Изучение C# на практике',           45.99, 30, N'Книги'),
+    (5, N'Клавиатура Logitech', N'Механическая, RGB подсветка',      199.99, 15, N'Аксессуары');
+
+    SET IDENTITY_INSERT dbo.Products OFF;
+
+    DBCC CHECKIDENT ('dbo.Customers',  RESEED, 2);
+    DBCC CHECKIDENT ('dbo.Products',   RESEED, 5);
+    DBCC CHECKIDENT ('dbo.Orders',     RESEED, 0);
+    DBCC CHECKIDENT ('dbo.OrderItems', RESEED, 0);
+    DBCC CHECKIDENT ('dbo.Payments',   RESEED, 0);
+END
+GO
+
+USE InternetShopDB_Replica;
+GO
 CREATE OR ALTER PROCEDURE dbo.ResetLabData
 AS
 BEGIN

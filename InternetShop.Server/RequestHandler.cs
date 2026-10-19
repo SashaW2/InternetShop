@@ -23,7 +23,7 @@ namespace InternetShop.Server
                     case OperationType.GetProducts: return _logic.GetProducts();
                     case OperationType.CreateOrder: return _logic.CreateOrder(request.Data, clientId);
                     case OperationType.CancelOrder: return _logic.CancelOrder(request.Data, clientId);
-                    case OperationType.PayOrder: return _logic.PayOrder(request.Data);
+                    case OperationType.PayOrder: return _logic.PayOrder(request.Data, clientId);
                     case OperationType.GetServerTime: return _logic.GetServerTime();
                     case OperationType.UpdateStock: return _logic.UpdateStock(request.Data, clientId);
                     default:

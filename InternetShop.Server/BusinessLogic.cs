@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using InternetShop.Server.Database;
 using InternetShop.Server.Database.Repositories;
+using InternetShop.Server.PubSub;
 using InternetShop.Shared.DTO;
 using InternetShop.Shared.Enums;
 using InternetShop.Shared.Models;
@@ -19,6 +20,34 @@ namespace InternetShop.Server
         private readonly PaymentRepository _payments = new PaymentRepository();
         private readonly CustomerRepository _customers = new CustomerRepository();
         private readonly ReplicationManager _replicationManager = new ReplicationManager();
+
+        private readonly Broker _broker;
+        private readonly Publisher _publisher;
+
+        private readonly Broker _analyticsBroker;
+        private readonly Publisher _analyticsPublisher;
+
+        public BusinessLogic()
+        {
+            _broker = new Broker();
+            _publisher = new Publisher(_broker);
+
+            _broker.Subscribe(EventTypes.OrderCreated, new LoggerSubscriber());
+            _broker.Subscribe(EventTypes.OrderCancelled, new LoggerSubscriber());
+            _broker.Subscribe(EventTypes.PaymentCompleted, new LoggerSubscriber());
+
+            _broker.Subscribe(EventTypes.OrderCreated, new StockServiceSubscriber());
+
+            _broker.Subscribe(EventTypes.OrderCreated, new NotificationServiceSubscriber());
+            _broker.Subscribe(EventTypes.PaymentCompleted, new NotificationServiceSubscriber());
+
+            _analyticsBroker = new Broker();
+            _analyticsPublisher = new Publisher(_analyticsBroker);
+
+            _analyticsBroker.Subscribe(EventTypes.OrderCreated, new AnalyticsServiceSubscriber());
+            _analyticsBroker.Subscribe(EventTypes.OrderCancelled, new AnalyticsServiceSubscriber());
+            _analyticsBroker.Subscribe(EventTypes.PaymentCompleted, new AnalyticsServiceSubscriber());
+        }
 
         public Response GetProducts()
         {
@@ -111,6 +140,8 @@ namespace InternetShop.Server
                 if (string.IsNullOrWhiteSpace(order.ShippingAddress)) return Fail("Укажите адрес", OperationType.CreateOrder);
                 if (!_customers.Exists(order.CustomerId)) return Fail($"Клиент {order.CustomerId} не найден", OperationType.CreateOrder);
 
+                int newOrderId;
+
                 lock (_stockLock)
                 {
                     using (var conn = Database.Database.CreatePrimaryConnection())
@@ -135,7 +166,7 @@ namespace InternetShop.Server
                             order.Status = OrderStatus.Pending;
                             order.TotalPrice = totalPrice;
 
-                            int newOrderId = _orders.Insert(conn, tx, order);
+                            newOrderId = _orders.Insert(conn, tx, order);
                             order.Id = newOrderId;
 
                             foreach (var item in order.Items)
@@ -159,16 +190,6 @@ namespace InternetShop.Server
                                     }
                                 }
                             }
-
-                            LogEvent("OrderCreated", $"Заказ №{newOrderId} на {order.TotalPrice} BYN");
-
-                            return new Response
-                            {
-                                Success = true,
-                                Message = $"Заказ №{newOrderId} создан на {order.TotalPrice} BYN",
-                                Result = order,
-                                Operation = OperationType.CreateOrder.ToString()
-                            };
                         }
                         catch (Exception ex)
                         {
@@ -177,6 +198,33 @@ namespace InternetShop.Server
                         }
                     }
                 }
+
+                LogEvent("OrderCreated", $"Заказ №{newOrderId} на {order.TotalPrice} BYN");
+
+                var evt = new Event
+                {
+                    EventType = EventTypes.OrderCreated,
+                    EntityId = newOrderId,
+                    Timestamp = DateTime.Now,
+                    ClientId = clientId > 0 ? $"Client {clientId}" : "-",
+                    Data = new Dictionary<string, object>
+                    {
+                        { "OrderId", newOrderId },
+                        { "CustomerId", order.CustomerId },
+                        { "TotalPrice", order.TotalPrice },
+                        { "Items", order.Items }
+                    }
+                };
+                _publisher.Publish(evt);
+                _analyticsPublisher.Publish(evt);
+
+                return new Response
+                {
+                    Success = true,
+                    Message = $"Заказ №{newOrderId} создан на {order.TotalPrice} BYN",
+                    Result = order,
+                    Operation = OperationType.CreateOrder.ToString()
+                };
             }
             catch (SqlException sqlEx) { return Fail($"Ошибка БД: {sqlEx.Message}", OperationType.CreateOrder); }
             catch (Exception ex) { return Fail($"Ошибка: {ex.Message}", OperationType.CreateOrder); }
@@ -189,10 +237,11 @@ namespace InternetShop.Server
                 if (data == null) return Fail("Укажите ID заказа", OperationType.CancelOrder);
 
                 int orderId = Convert.ToInt32(data);
+                Order order;
 
                 lock (_stockLock)
                 {
-                    var order = _orders.GetById(orderId);
+                    order = _orders.GetById(orderId);
                     if (order == null) return Fail($"Заказ {orderId} не найден", OperationType.CancelOrder);
                     if (order.Status == OrderStatus.Cancelled) return Fail("Уже отменен", OperationType.CancelOrder);
                     if (order.Status == OrderStatus.Paid) return Fail("Нельзя отменить оплаченный", OperationType.CancelOrder);
@@ -217,24 +266,39 @@ namespace InternetShop.Server
                             }
                         }
                     }
-
-                    LogEvent("OrderCancelled", $"Заказ №{orderId} отменен");
-
-                    return new Response
-                    {
-                        Success = true,
-                        Message = $"Заказ №{orderId} отменен",
-                        Result = order,
-                        Operation = OperationType.CancelOrder.ToString()
-                    };
                 }
+
+                LogEvent("OrderCancelled", $"Заказ №{orderId} отменен");
+
+                var evt = new Event
+                {
+                    EventType = EventTypes.OrderCancelled,
+                    EntityId = orderId,
+                    Timestamp = DateTime.Now,
+                    ClientId = clientId > 0 ? $"Client {clientId}" : "-",
+                    Data = new Dictionary<string, object>
+                    {
+                        { "OrderId", orderId },
+                        { "CustomerId", order.CustomerId }
+                    }
+                };
+                _publisher.Publish(evt);
+                _analyticsPublisher.Publish(evt);
+
+                return new Response
+                {
+                    Success = true,
+                    Message = $"Заказ №{orderId} отменен",
+                    Result = order,
+                    Operation = OperationType.CancelOrder.ToString()
+                };
             }
             catch (FormatException) { return Fail("ID должен быть числом", OperationType.CancelOrder); }
             catch (SqlException sqlEx) { return Fail($"Ошибка БД: {sqlEx.Message}", OperationType.CancelOrder); }
             catch (Exception ex) { return Fail($"Ошибка: {ex.Message}", OperationType.CancelOrder); }
         }
 
-        public Response PayOrder(object data)
+        public Response PayOrder(object data, int clientId = 0)
         {
             try
             {
@@ -280,6 +344,23 @@ namespace InternetShop.Server
                 order.PaidAt = DateTime.Now;
 
                 LogEvent("PaymentCompleted", $"Заказ №{orderId} оплачен");
+
+                var evt = new Event
+                {
+                    EventType = EventTypes.PaymentCompleted,
+                    EntityId = orderId,
+                    Timestamp = DateTime.Now,
+                    ClientId = clientId > 0 ? $"Client {clientId}" : "-",
+                    Data = new Dictionary<string, object>
+                    {
+                        { "OrderId", orderId },
+                        { "CustomerId", order.CustomerId },
+                        { "Amount", order.TotalPrice },
+                        { "PaymentMethod", payment.PaymentMethod }
+                    }
+                };
+                _publisher.Publish(evt);
+                _analyticsPublisher.Publish(evt);
 
                 return new Response
                 {
