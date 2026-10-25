@@ -29,24 +29,24 @@ namespace InternetShop.Server
 
         public BusinessLogic()
         {
-            _broker = new Broker();
-            _publisher = new Publisher(_broker);
+            //_broker = new Broker();
+            //_publisher = new Publisher(_broker);
 
-            _broker.Subscribe(EventTypes.OrderCreated, new LoggerSubscriber());
-            _broker.Subscribe(EventTypes.OrderCancelled, new LoggerSubscriber());
-            _broker.Subscribe(EventTypes.PaymentCompleted, new LoggerSubscriber());
+            //_broker.Subscribe(EventTypes.OrderCreated, new LoggerSubscriber());
+            //_broker.Subscribe(EventTypes.OrderCancelled, new LoggerSubscriber());
+            //_broker.Subscribe(EventTypes.PaymentCompleted, new LoggerSubscriber());
 
-            _broker.Subscribe(EventTypes.OrderCreated, new StockServiceSubscriber());
+            //_broker.Subscribe(EventTypes.OrderCreated, new StockServiceSubscriber());
 
-            _broker.Subscribe(EventTypes.OrderCreated, new NotificationServiceSubscriber());
-            _broker.Subscribe(EventTypes.PaymentCompleted, new NotificationServiceSubscriber());
+            //_broker.Subscribe(EventTypes.OrderCreated, new NotificationServiceSubscriber());
+            //_broker.Subscribe(EventTypes.PaymentCompleted, new NotificationServiceSubscriber());
 
-            _analyticsBroker = new Broker();
-            _analyticsPublisher = new Publisher(_analyticsBroker);
+            //_analyticsBroker = new Broker();
+            //_analyticsPublisher = new Publisher(_analyticsBroker);
 
-            _analyticsBroker.Subscribe(EventTypes.OrderCreated, new AnalyticsServiceSubscriber());
-            _analyticsBroker.Subscribe(EventTypes.OrderCancelled, new AnalyticsServiceSubscriber());
-            _analyticsBroker.Subscribe(EventTypes.PaymentCompleted, new AnalyticsServiceSubscriber());
+            //_analyticsBroker.Subscribe(EventTypes.OrderCreated, new AnalyticsServiceSubscriber());
+            //_analyticsBroker.Subscribe(EventTypes.OrderCancelled, new AnalyticsServiceSubscriber());
+            //_analyticsBroker.Subscribe(EventTypes.PaymentCompleted, new AnalyticsServiceSubscriber());
         }
 
         public Response GetProducts()
@@ -201,22 +201,22 @@ namespace InternetShop.Server
 
                 LogEvent("OrderCreated", $"Заказ №{newOrderId} на {order.TotalPrice} BYN");
 
-                var evt = new Event
-                {
-                    EventType = EventTypes.OrderCreated,
-                    EntityId = newOrderId,
-                    Timestamp = DateTime.Now,
-                    ClientId = clientId > 0 ? $"Client {clientId}" : "-",
-                    Data = new Dictionary<string, object>
-                    {
-                        { "OrderId", newOrderId },
-                        { "CustomerId", order.CustomerId },
-                        { "TotalPrice", order.TotalPrice },
-                        { "Items", order.Items }
-                    }
-                };
-                _publisher.Publish(evt);
-                _analyticsPublisher.Publish(evt);
+                //var evt = new Event
+                //{
+                //    EventType = EventTypes.OrderCreated,
+                //    EntityId = newOrderId,
+                //    Timestamp = DateTime.Now,
+                //    ClientId = clientId > 0 ? $"Client {clientId}" : "-",
+                //    Data = new Dictionary<string, object>
+                //    {
+                //        { "OrderId", newOrderId },
+                //        { "CustomerId", order.CustomerId },
+                //        { "TotalPrice", order.TotalPrice },
+                //        { "Items", order.Items }
+                //    }
+                //};
+                //_publisher.Publish(evt);
+                //_analyticsPublisher.Publish(evt);
 
                 return new Response
                 {
@@ -270,20 +270,20 @@ namespace InternetShop.Server
 
                 LogEvent("OrderCancelled", $"Заказ №{orderId} отменен");
 
-                var evt = new Event
-                {
-                    EventType = EventTypes.OrderCancelled,
-                    EntityId = orderId,
-                    Timestamp = DateTime.Now,
-                    ClientId = clientId > 0 ? $"Client {clientId}" : "-",
-                    Data = new Dictionary<string, object>
-                    {
-                        { "OrderId", orderId },
-                        { "CustomerId", order.CustomerId }
-                    }
-                };
-                _publisher.Publish(evt);
-                _analyticsPublisher.Publish(evt);
+                //var evt = new Event
+                //{
+                //    EventType = EventTypes.OrderCancelled,
+                //    EntityId = orderId,
+                //    Timestamp = DateTime.Now,
+                //    ClientId = clientId > 0 ? $"Client {clientId}" : "-",
+                //    Data = new Dictionary<string, object>
+                //    {
+                //        { "OrderId", orderId },
+                //        { "CustomerId", order.CustomerId }
+                //    }
+                //};
+                //_publisher.Publish(evt);
+                //_analyticsPublisher.Publish(evt);
 
                 return new Response
                 {
@@ -345,22 +345,22 @@ namespace InternetShop.Server
 
                 LogEvent("PaymentCompleted", $"Заказ №{orderId} оплачен");
 
-                var evt = new Event
-                {
-                    EventType = EventTypes.PaymentCompleted,
-                    EntityId = orderId,
-                    Timestamp = DateTime.Now,
-                    ClientId = clientId > 0 ? $"Client {clientId}" : "-",
-                    Data = new Dictionary<string, object>
-                    {
-                        { "OrderId", orderId },
-                        { "CustomerId", order.CustomerId },
-                        { "Amount", order.TotalPrice },
-                        { "PaymentMethod", payment.PaymentMethod }
-                    }
-                };
-                _publisher.Publish(evt);
-                _analyticsPublisher.Publish(evt);
+                //var evt = new Event
+                //{
+                //    EventType = EventTypes.PaymentCompleted,
+                //    EntityId = orderId,
+                //    Timestamp = DateTime.Now,
+                //    ClientId = clientId > 0 ? $"Client {clientId}" : "-",
+                //    Data = new Dictionary<string, object>
+                //    {
+                //        { "OrderId", orderId },
+                //        { "CustomerId", order.CustomerId },
+                //        { "Amount", order.TotalPrice },
+                //        { "PaymentMethod", payment.PaymentMethod }
+                //    }
+                //};
+                //_publisher.Publish(evt);
+                //_analyticsPublisher.Publish(evt);
 
                 return new Response
                 {

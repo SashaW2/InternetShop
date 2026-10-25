@@ -1,12 +1,139 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B0CBDAEC-89E2-4E83-82E6-3E4DA7158E7D}|InternetShop.Tests\\InternetShop.Tests.csproj|e:\\\u0443\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u043B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\internetshop\\internetshop.tests\\consensustests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0CBDAEC-89E2-4E83-82E6-3E4DA7158E7D}|InternetShop.Tests\\InternetShop.Tests.csproj|solutionrelative:internetshop.tests\\consensustests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C20022D9-C494-6B28-B25B-9391AB5C76DC}|InternetShop.Server\\InternetShop.Server.csproj|e:\\\u0443\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u043B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\internetshop\\internetshop.server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C20022D9-C494-6B28-B25B-9391AB5C76DC}|InternetShop.Server\\InternetShop.Server.csproj|solutionrelative:internetshop.server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{02F8C88B-BD88-D772-A1F4-5A22E38BE6F2}|InternetShop.Shared\\InternetShop.Shared.csproj|e:\\\u0443\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u043B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\internetshop\\internetshop.shared\\models\\nodeinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{02F8C88B-BD88-D772-A1F4-5A22E38BE6F2}|InternetShop.Shared\\InternetShop.Shared.csproj|solutionrelative:internetshop.shared\\models\\nodeinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{02F8C88B-BD88-D772-A1F4-5A22E38BE6F2}|InternetShop.Shared\\InternetShop.Shared.csproj|e:\\\u0443\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u043B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\internetshop\\internetshop.shared\\enums\\nodestatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{02F8C88B-BD88-D772-A1F4-5A22E38BE6F2}|InternetShop.Shared\\InternetShop.Shared.csproj|solutionrelative:internetshop.shared\\enums\\nodestatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{02F8C88B-BD88-D772-A1F4-5A22E38BE6F2}|InternetShop.Shared\\InternetShop.Shared.csproj|e:\\\u0443\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u043B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\internetshop\\internetshop.shared\\dto\\proposal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{02F8C88B-BD88-D772-A1F4-5A22E38BE6F2}|InternetShop.Shared\\InternetShop.Shared.csproj|solutionrelative:internetshop.shared\\dto\\proposal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{02F8C88B-BD88-D772-A1F4-5A22E38BE6F2}|InternetShop.Shared\\InternetShop.Shared.csproj|e:\\\u0443\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u043B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\internetshop\\internetshop.shared\\dto\\nodemessage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{02F8C88B-BD88-D772-A1F4-5A22E38BE6F2}|InternetShop.Shared\\InternetShop.Shared.csproj|solutionrelative:internetshop.shared\\dto\\nodemessage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{02F8C88B-BD88-D772-A1F4-5A22E38BE6F2}|InternetShop.Shared\\InternetShop.Shared.csproj|e:\\\u0443\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u043B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\internetshop\\internetshop.shared\\enums\\noderole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{02F8C88B-BD88-D772-A1F4-5A22E38BE6F2}|InternetShop.Shared\\InternetShop.Shared.csproj|solutionrelative:internetshop.shared\\enums\\noderole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "NodeStatus.cs",
+              "DocumentMoniker": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Shared\\Enums\\NodeStatus.cs",
+              "RelativeDocumentMoniker": "InternetShop.Shared\\Enums\\NodeStatus.cs",
+              "ToolTip": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Shared\\Enums\\NodeStatus.cs",
+              "RelativeToolTip": "InternetShop.Shared\\Enums\\NodeStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-25T15:58:48.862Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "NodeInfo.cs",
+              "DocumentMoniker": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Shared\\Models\\NodeInfo.cs",
+              "RelativeDocumentMoniker": "InternetShop.Shared\\Models\\NodeInfo.cs",
+              "ToolTip": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Shared\\Models\\NodeInfo.cs",
+              "RelativeToolTip": "InternetShop.Shared\\Models\\NodeInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-25T15:58:35.371Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ConsensusTests.cs",
+              "DocumentMoniker": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Tests\\ConsensusTests.cs",
+              "RelativeDocumentMoniker": "InternetShop.Tests\\ConsensusTests.cs",
+              "ToolTip": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Tests\\ConsensusTests.cs",
+              "RelativeToolTip": "InternetShop.Tests\\ConsensusTests.cs",
+              "ViewState": "AgIAANoAAAAAAAAAAAAmwOYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-25T15:58:29.813Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "NodeMessage.cs",
+              "DocumentMoniker": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Shared\\DTO\\NodeMessage.cs",
+              "RelativeDocumentMoniker": "InternetShop.Shared\\DTO\\NodeMessage.cs",
+              "ToolTip": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Shared\\DTO\\NodeMessage.cs",
+              "RelativeToolTip": "InternetShop.Shared\\DTO\\NodeMessage.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAUwAkAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-25T15:57:39.415Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Proposal.cs",
+              "DocumentMoniker": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Shared\\DTO\\Proposal.cs",
+              "RelativeDocumentMoniker": "InternetShop.Shared\\DTO\\Proposal.cs",
+              "ToolTip": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Shared\\DTO\\Proposal.cs",
+              "RelativeToolTip": "InternetShop.Shared\\DTO\\Proposal.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-25T15:57:35.062Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Server\\Program.cs",
+              "RelativeDocumentMoniker": "InternetShop.Server\\Program.cs",
+              "ToolTip": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Server\\Program.cs",
+              "RelativeToolTip": "InternetShop.Server\\Program.cs",
+              "ViewState": "AgIAAEMAAAAAAAAAAAAowFcAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-25T15:44:40.612Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "NodeRole.cs",
+              "DocumentMoniker": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Shared\\Enums\\NodeRole.cs",
+              "RelativeDocumentMoniker": "InternetShop.Shared\\Enums\\NodeRole.cs",
+              "ToolTip": "E:\\\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442\\4 \u043A\u0443\u0440\u0441\\1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u044B\u0435 \u0438 \u043E\u0431\u043B\u0430\u0447\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438\\\u041B\u0430\u0431\u043E\u0440\u0430\u0442\u043E\u0440\u043D\u044B\u0435 \u0440\u0430\u0431\u043E\u0442\u044B\\InternetShop\\InternetShop.Shared\\Enums\\NodeRole.cs",
+              "RelativeToolTip": "InternetShop.Shared\\Enums\\NodeRole.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-25T15:58:51.353Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
