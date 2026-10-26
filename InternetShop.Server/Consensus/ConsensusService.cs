@@ -45,7 +45,6 @@ namespace InternetShop.Server.Consensus
 
             var nodes = _registry.GetAll();
             var yes = 0;
-            var no = 0;
 
             foreach (var target in nodes.Where(n => n.Id != leaderId).OrderBy(n => n.Id))
             {
@@ -64,7 +63,7 @@ namespace InternetShop.Server.Consensus
                 }
 
                 if (vote.IsYes) { yes++; NodeLogger.Log($"Node {target.Id} → YES"); }
-                else { no++; NodeLogger.Log($"Node {target.Id} → NO"); }
+                else NodeLogger.Log($"Node {target.Id} → NO");
             }
 
             yes++;
