@@ -4,8 +4,6 @@
     {
         Heartbeat,
         HeartbeatAck,
-        ElectionStart,
-        ElectionVote,
         Proposal,
         ProposalVote,
     }
