@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace InternetShop.Shared.DTO
+﻿namespace InternetShop.Shared.DTO
 {
     public class UpdateStockRequest
     {

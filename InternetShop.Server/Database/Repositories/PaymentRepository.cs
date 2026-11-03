@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using InternetShop.Shared.Models;
 
 namespace InternetShop.Server.Database.Repositories

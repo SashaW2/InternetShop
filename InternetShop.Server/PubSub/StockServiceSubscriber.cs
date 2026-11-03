@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using InternetShop.Server.Database.Repositories;
+﻿using InternetShop.Server.Database.Repositories;
 using InternetShop.Shared.DTO;
 using InternetShop.Shared.Models;
 

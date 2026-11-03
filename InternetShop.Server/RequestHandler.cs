@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using InternetShop.Shared.DTO;
 using InternetShop.Shared.Enums;
 

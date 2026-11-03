@@ -1,0 +1,1 @@
+docker exec -it shop-db /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "IntShop!Pass2026" -C -Q "EXEC InternetShopDB_Primary.dbo.ResetLabData; EXEC InternetShopDB_Replica.dbo.ResetLabData;"

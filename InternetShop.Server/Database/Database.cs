@@ -1,16 +1,26 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using Microsoft.Data.SqlClient;
 
 namespace InternetShop.Server.Database
 {
     public static class Database
     {
-        private const string PrimaryConnectionString =
-            @"Server=localhost;Database=InternetShopDB_Primary;User Id=sa;Password=2006;TrustServerCertificate=true;";
+        private static string BuildConnectionString(string database)
+        {
+            var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+            var port = Environment.GetEnvironmentVariable("DB_PORT") ?? "1433";
+            var user = Environment.GetEnvironmentVariable("DB_USER") ?? "sa";
+            var pass = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "2006";
+            return $"Server={host},{port};Database={database};User Id={user};Password={pass};TrustServerCertificate=true;";
+        }
 
-        private const string ReplicaConnectionString =
-            @"Server=localhost;Database=InternetShopDB_Replica;User Id=sa;Password=2006;TrustServerCertificate=true;";
+        private static string DatabasePrimaryName =>
+            Environment.GetEnvironmentVariable("DB_NAME_PRIMARY") ?? "InternetShopDB_Primary";
+        private static string DatabaseReplicaName =>
+            Environment.GetEnvironmentVariable("DB_NAME_REPLICA") ?? "InternetShopDB_Replica";
+
+        private static string PrimaryConnectionString => BuildConnectionString(DatabasePrimaryName);
+        private static string ReplicaConnectionString => BuildConnectionString(DatabaseReplicaName);
 
         private static bool _primaryAvailable = true;
         private static bool _replicaAvailable = true;

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace InternetShop.Shared.Models
+﻿namespace InternetShop.Shared.Models
 {
     public class Payment
     {

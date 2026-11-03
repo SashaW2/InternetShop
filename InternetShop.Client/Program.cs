@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using InternetShop.Shared.DTO;
-using InternetShop.Shared.Enums;
+﻿using InternetShop.Shared.DTO;
 using InternetShop.Shared.Models;
 
 namespace InternetShop.Client

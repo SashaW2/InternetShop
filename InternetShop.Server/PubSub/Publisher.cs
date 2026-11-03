@@ -1,7 +1,4 @@
-﻿using System;
-using InternetShop.Shared.DTO;
-
-namespace InternetShop.Server.PubSub
+﻿namespace InternetShop.Server.PubSub
 {
     public class Publisher
     {

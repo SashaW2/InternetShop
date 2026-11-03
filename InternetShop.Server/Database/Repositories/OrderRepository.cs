@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using InternetShop.Shared.Models;
 using InternetShop.Shared.Enums;
 
@@ -40,32 +38,6 @@ namespace InternetShop.Server.Database.Repositories
             }
 
             return newOrderId;
-        }
-
-        public List<Order> GetAll()
-        {
-            var result = new List<Order>();
-            using (var conn = Database.CreateConnection())
-            using (var cmd = new SqlCommand(
-                @"SELECT Id, CustomerId, CreatedAt, Status, TotalPrice, ShippingAddress, PaidAt
-                  FROM dbo.Orders ORDER BY Id", conn))
-            using (var reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    result.Add(new Order
-                    {
-                        Id = reader.GetInt32(0),
-                        CustomerId = reader.GetInt32(1),
-                        CreatedAt = reader.GetDateTime(2),
-                        Status = (OrderStatus)reader.GetInt32(3),
-                        TotalPrice = reader.GetDecimal(4),
-                        ShippingAddress = reader.GetString(5),
-                        PaidAt = reader.IsDBNull(6) ? (DateTime?)null : reader.GetDateTime(6)
-                    });
-                }
-            }
-            return result;
         }
 
         public Order GetById(int id)

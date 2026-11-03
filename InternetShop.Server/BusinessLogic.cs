@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using InternetShop.Server.Database;
+﻿using InternetShop.Server.Database;
 using InternetShop.Server.Database.Repositories;
 using InternetShop.Server.PubSub;
 using InternetShop.Shared.DTO;
@@ -21,11 +18,11 @@ namespace InternetShop.Server
         private readonly CustomerRepository _customers = new CustomerRepository();
         private readonly ReplicationManager _replicationManager = new ReplicationManager();
 
-        private readonly Broker _broker;
-        private readonly Publisher _publisher;
+        //private readonly Broker _broker;
+        //private readonly Publisher _publisher;
 
-        private readonly Broker _analyticsBroker;
-        private readonly Publisher _analyticsPublisher;
+        //private readonly Broker _analyticsBroker;
+        //private readonly Publisher _analyticsPublisher;
 
         public BusinessLogic()
         {
@@ -380,7 +377,7 @@ namespace InternetShop.Server
             try
             {
                 DateTime serverTime = DateTime.UtcNow;
-                System.Threading.Thread.Sleep(1000);
+                Thread.Sleep(1000);
 
                 return new Response
                 {

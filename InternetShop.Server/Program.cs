@@ -1,8 +1,6 @@
 ﻿using InternetShop.Server.Consensus;
 using InternetShop.Server.Database;
 using InternetShop.Shared.Enums;
-using System;
-
 namespace InternetShop.Server
 {
     class Program
@@ -21,8 +19,7 @@ namespace InternetShop.Server
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Не удалось подключиться к Primary: {primaryError}");
                 Console.ResetColor();
-                Console.ReadKey();
-                return;
+                Environment.Exit(1);
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Подключение к Primary установлено.");
@@ -33,8 +30,7 @@ namespace InternetShop.Server
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Не удалось подключиться к Replica: {replicaError}");
                 Console.ResetColor();
-                Console.ReadKey();
-                return;
+                Environment.Exit(1);
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Подключение к Replica установлено.");
@@ -53,37 +49,37 @@ namespace InternetShop.Server
             }
             Console.ResetColor();
 
-            var registry = new NodeRegistry(5);
-            var election = new LeaderElection(registry);
-            var detector = new HeartbeatDetector(registry);
-            var consensus = new ConsensusService(registry);
+            //var registry = new NodeRegistry(5);
+            //var election = new LeaderElection(registry);
+            //var detector = new HeartbeatDetector(registry);
+            //var consensus = new ConsensusService(registry);
 
             //registry.SetStatus(3, NodeStatus.Failed);
             //registry.SetStatus(4, NodeStatus.Failed);
             //registry.SetStatus(5, NodeStatus.Failed);
 
-            var leader = election.Elect();
-            NodeLogger.Log($"Current Leader = " + (leader == null ? "none" : $"Node {leader.Id}"));
+            //var leader = election.Elect();
+            //NodeLogger.Log($"Current Leader = " + (leader == null ? "none" : $"Node {leader.Id}"));
 
-            NodeLogger.Log("Heartbeat check");
-            var failed = detector.CheckAll();
+            //NodeLogger.Log("Heartbeat check");
+            //var failed = detector.CheckAll();
 
-            if (leader != null && failed.Any(f => f.Id == leader.Id))
-            {
-                leader = election.ElectAfterFailure(leader.Id);
-                NodeLogger.Log($"Current Leader = " + (leader == null ? "none" : $"Node {leader.Id}"));
-                NodeLogger.Log($"Leaders count = {registry.CountLeaders()}");
-            }
+            //if (leader != null && failed.Any(f => f.Id == leader.Id))
+            //{
+            //    leader = election.ElectAfterFailure(leader.Id);
+            //    NodeLogger.Log($"Current Leader = " + (leader == null ? "none" : $"Node {leader.Id}"));
+            //    NodeLogger.Log($"Leaders count = {registry.CountLeaders()}");
+            //}
 
-            if (leader != null && leader.Status == NodeStatus.Available)
-            {
-                NodeLogger.Log("Voting started");
-                consensus.ProposeAndVote(leader.Id, "OrderStatus", OrderStatus.Paid.ToString());
-            }
-            else
-            {
-                NodeLogger.Log("Voting skipped: no AVAILABLE Leader");
-            }
+            //if (leader != null && leader.Status == NodeStatus.Available)
+            //{
+            //    NodeLogger.Log("Voting started");
+            //    consensus.ProposeAndVote(leader.Id, "OrderStatus", OrderStatus.Paid.ToString());
+            //}
+            //else
+            //{
+            //    NodeLogger.Log("Voting skipped: no AVAILABLE Leader");
+            //}
 
             try
             {
@@ -96,7 +92,7 @@ namespace InternetShop.Server
             catch (Exception ex)
             {
                 Console.WriteLine($"Критическая ошибка: {ex.Message}");
-                Console.ReadKey();
+                Environment.Exit(1);
             }
         }
     }

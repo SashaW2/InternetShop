@@ -1,11 +1,8 @@
 ﻿using InternetShop.Shared.DTO;
-using InternetShop.Shared.Enums;
 using Newtonsoft.Json;
-using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace InternetShop.Server
 {
@@ -75,7 +72,7 @@ namespace InternetShop.Server
             string clientEndPoint = client.Client.RemoteEndPoint?.ToString() ?? "unknown";
 
             int? taskIdAtStart = Task.CurrentId;
-            int threadIdAtStart = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            int threadIdAtStart = Thread.CurrentThread.ManagedThreadId;
 
             try
             {
@@ -138,7 +135,7 @@ namespace InternetShop.Server
                             Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Client {clientId} → END | " +
                                 $"Операция: {request?.Operation} | Успех: {response.Success} | " +
                                 $"Task ID: {taskIdAtStart} | " +
-                                $"Поток: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+                                $"Поток: {Thread.CurrentThread.ManagedThreadId}");
                             Console.WriteLine("----------------------------------------");
                         }
                         catch (IOException ex)
@@ -181,12 +178,6 @@ namespace InternetShop.Server
             {
                 return "127.0.0.1";
             }
-        }
-
-        public void Stop()
-        {
-            _isRunning = false;
-            _listener?.Stop();
         }
     }
 }

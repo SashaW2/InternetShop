@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace InternetShop.Shared.DTO
+﻿namespace InternetShop.Shared.DTO
 {
     public class TimeResponse
     {

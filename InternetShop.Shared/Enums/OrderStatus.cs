@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace InternetShop.Shared.Enums
+﻿namespace InternetShop.Shared.Enums
 {
     public enum OrderStatus
     {

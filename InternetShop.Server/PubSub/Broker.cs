@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using InternetShop.Shared.DTO;
-
-namespace InternetShop.Server.PubSub
+﻿namespace InternetShop.Server.PubSub
 {
     public class Broker
     {
