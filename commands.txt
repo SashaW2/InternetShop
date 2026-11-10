@@ -1,0 +1,43 @@
+-- Кластер --
+kubectl cluster-info
+kubectl get nodes
+kubectl config current-context
+
+-- Развертывание --
+kubectl apply -f deployment.yaml
+kubectl get deployments
+kubectl get pods
+kubectl describe pod <имя-pod>
+kubectl logs <имя-pod>
+kubectl logs -l app=internetshop-server
+
+-- Service --
+kubectl apply -f service.yaml
+kubectl get services
+kubectl describe service internetshop-server
+kubectl get pods --show-labels
+
+-- Доступ с хоста --
+kubectl port-forward service/internetshop-server 3000:3000
+
+-- Масштабирование --
+kubectl scale deployment internetshop-server --replicas=3
+kubectl get deployments
+kubectl get pods
+
+-- Отказ Pod и восстановление --
+kubectl get pods
+kubectl delete pod <имя-pod>
+kubectl get pods
+
+-- ConfigMap --
+kubectl apply -f configmap.yaml
+kubectl get configmaps
+kubectl describe configmap internetshop-config
+kubectl exec deploy/internetshop-server -- printenv APP_MODE
+
+-- Итоговая проверка --
+kubectl get deployments
+kubectl get pods
+kubectl get services
+kubectl logs -l app=internetshop-server

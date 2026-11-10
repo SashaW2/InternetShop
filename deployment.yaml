@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: internetshop-server
+  labels:
+    app: internetshop-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: internetshop-server
+  template:
+    metadata:
+      labels:
+        app: internetshop-server
+    spec:
+      containers:
+        - name: server
+          image: internetshop-server:1.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: APP_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: internetshop-config
+                  key: APP_MODE
+            - name: DB_HOST
+              value: "host.docker.internal"
+            - name: DB_PORT
+              value: "1435"
+            - name: DB_USER
+              value: "sa"
+            - name: DB_PASSWORD
+              value: "IntShop!Pass2026"
+            - name: DB_NAME_PRIMARY
+              value: "InternetShopDB_Primary"
+            - name: DB_NAME_REPLICA
+              value: "InternetShopDB_Replica"

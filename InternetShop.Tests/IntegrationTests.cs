@@ -196,6 +196,28 @@ namespace InternetShop.Tests
             Assert.True(r.Success, r.Error);
         }
 
+        [Fact]
+        public void AppMode_DefaultValue_WhenEnvNotSet()
+        {
+            Environment.SetEnvironmentVariable("APP_MODE", null);
+
+            string mode = Environment.GetEnvironmentVariable("APP_MODE") ?? "default";
+
+            Assert.Equal("default", mode);
+        }
+
+        [Fact]
+        public void AppMode_ReadsValue_WhenEnvSet()
+        {
+            Environment.SetEnvironmentVariable("APP_MODE", "kubernetes");
+
+            string mode = Environment.GetEnvironmentVariable("APP_MODE") ?? "default";
+
+            Assert.Equal("kubernetes", mode);
+
+            Environment.SetEnvironmentVariable("APP_MODE", null);
+        }
+
         // ============================================================
         // Reset обеих баз после каждого теста
         // ============================================================

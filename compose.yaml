@@ -24,7 +24,7 @@ services:
     build:
       context: .
       dockerfile: InternetShop.Server/Dockerfile
-    image: internetshop-server:latest
+      image: internetshop-server:1.0
     container_name: shop-server
     environment:
       DB_HOST: "shop-db"

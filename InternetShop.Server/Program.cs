@@ -10,6 +10,10 @@ namespace InternetShop.Server
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.Title = "СЕРВЕР Интернет-магазина";
+
+            string appMode = Environment.GetEnvironmentVariable("APP_MODE") ?? "default";
+            Console.WriteLine($"[CONFIG] Application mode: {appMode}");
+
             Console.WriteLine("========================================");
             Console.WriteLine("   ЗАПУСК СЕРВЕРА ИНТЕРНЕТ-МАГАЗИНА");
             Console.WriteLine("========================================");
