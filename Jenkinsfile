@@ -21,5 +21,10 @@ pipeline {
                 bat 'dotnet test InternetShop.Tests/InternetShop.Tests.csproj --configuration Release --no-build'
             }
         }
+        stage('Package') {
+            steps {
+                bat 'docker build -t internetshop-server:%BUILD_NUMBER% -f InternetShop.Server/Dockerfile .'
+            }
+        }
     }
 }
