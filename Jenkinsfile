@@ -11,5 +11,10 @@ pipeline {
                 bat 'dotnet restore InternetShop.slnx'
             }
         }
+        stage('Build') {
+            steps {
+                bat 'dotnet build InternetShop.slnx --configuration Release --no-restore'
+            }
+        }
     }
 }
