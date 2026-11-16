@@ -16,5 +16,10 @@ pipeline {
                 bat 'dotnet build InternetShop.slnx --configuration Release --no-restore'
             }
         }
+        stage('Test') {
+            steps {
+                bat 'dotnet test InternetShop.Tests/InternetShop.Tests.csproj --configuration Release --no-build'
+            }
+        }
     }
 }
