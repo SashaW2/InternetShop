@@ -26,5 +26,13 @@ pipeline {
                 bat 'docker build -t internetshop-server:%BUILD_NUMBER% -f InternetShop.Server/Dockerfile .'
             }
         }
+        stage('Deploy') {
+            steps {
+                bat 'kubectl set image deployment/internetshop-server server=internetshop-server:%BUILD_NUMBER%'
+                bat 'kubectl rollout status deployment/internetshop-server --timeout=120s'
+                bat 'kubectl get deployments'
+                bat 'kubectl get pods'
+            }
+        }
     }
 }
