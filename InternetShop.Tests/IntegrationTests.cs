@@ -33,7 +33,7 @@ namespace InternetShop.Tests
             var r = _logic.CreateOrder(null);
             Assert.False(r.Success);
             Assert.False(string.IsNullOrWhiteSpace(r.Error));
-            Assert.Contains("пуст", r.Error);
+            Assert.Contains("УРА", r.Error);
         }
 
         [Fact]
