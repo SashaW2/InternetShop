@@ -54,7 +54,7 @@ namespace InternetShop.Server
                 return new Response
                 {
                     Success = true,
-                    Message = $"Найдено {products.Count} товаров (v2)",
+                    Message = $"Найдено {products.Count} товаров",
                     Result = products,
                     Operation = OperationType.GetProducts.ToString()
                 };
